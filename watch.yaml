@@ -1,0 +1,59 @@
+# What Recall Watch watches, and what is on the shelf. Code reads this file. After a change to
+# `monitors`, run
+#   uv run python -m recall.setup_monitors
+# No Context.dev call ran with these addresses and queries yet.
+
+kitchen: School kitchen, Helsinki
+
+# A notice counts for this many days after its date.
+active_days: 30
+
+# The Finnish Food Authority's list of recalls. Checked on 14 November: the address answers, the
+# notices are in its plain HTML, and its robots.txt forbids nothing.
+list:
+  url: https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot/
+  # Read the list again after this many minutes, also when no monitor reported a change. 1 credit.
+  recheck_minutes: 60
+  # On start, read at most this many notices of the current year that the database does not hold yet.
+  # Each one costs 5 credits (docs.context.dev/account/credits: 1 for the page, 4 for the fields).
+  backfill_max: 40
+
+# Context.dev monitors. Each runs every 10 minutes, the shortest schedule (docs.context.dev/monitors/schedules).
+# Cost: 1 credit per page run, 2 per search run.
+#   kind list: a change means that the list has a new notice. We then read the list and the new notices.
+#   kind web:  each result is a recall notice somewhere else on the web. It gives "check" at most.
+monitors:
+  - name: "Recall Watch: Ruokavirasto recall list"
+    kind: list
+    target:
+      type: page
+      url: https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot/
+      instructions: "Report a new food recall notice at the top of the list. Give its title. Ignore layout, menus and cookie text."
+  - name: "Recall Watch: recalls announced on the web"
+    kind: web
+    target:
+      type: search
+      query: "elintarvike takaisinveto tiedote"
+      instructions: "Report a new recall of a food product in Finland, announced by a manufacturer, an importer or a shop chain. Ignore recalls of cars, toys and other goods, and ignore yearly statistics."
+
+# Context.dev news search, run by our backend every news_minutes. The screen lists the articles. They give no level.
+news:
+  query: "food product recall in Finland, elintarvikkeen takaisinveto"
+  news_minutes: 30
+
+# The products on this kitchen's shelf. We wrote this list for the demo. Seven of the twelve
+# products are here because a notice of 2026 names them, so that the replay shows every level.
+# The other five match no notice.
+shelf:
+  - {id: coleslaw, name: "Atria Coleslaw 300 g", brand: Atria, ean: "6407860065295"}
+  - {id: coffee, name: "Kulta Katriina Perinteinen suodatinkahvi 500 g", brand: Kulta Katriina}
+  - {id: oat-drink, name: "Elovena kaurajuoma kahviin 1 l", brand: Elovena}
+  - {id: curry, name: "Via Red Thai Curry 320 g", brand: Via, ean: "6409100071899"}
+  - {id: sprouts, name: "Lounasitu sinimailasen idut 1 kg", brand: Lounasitu}
+  - {id: eggs, name: "Kotimaista Vapaa M10 580 g", brand: Kotimaista, ean: "6414893094918"}
+  - {id: pudding, name: "Arla Protein Vanilja vanukas 200g laktoositon", brand: Arla}
+  - {id: milk, name: "Valio Eila rasvaton maitojuoma 1 l", brand: Valio}
+  - {id: bread, name: "Fazer Puikula täysjyväruis 500 g", brand: Fazer}
+  - {id: pasta, name: "Myllyn Paras makaroni 400 g", brand: Myllyn Paras}
+  - {id: sausage, name: "HK Sininen Lenkki 580 g", brand: HK}
+  - {id: butter, name: "Valio voi normaalisuolainen 500 g", brand: Valio}

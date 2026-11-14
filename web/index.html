@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recall Watch</title>
+<style>
+  :root { --paper:#f5f1e8; --ink:#1b2028; --quiet:#697078; --line:#d4cec0; --safe:#1c67c9; --check:#a45d00; --urgent:#bd273c; }
+  *{box-sizing:border-box} body{margin:0;background:var(--paper);color:var(--ink);font-family:"Avenir Next","Trebuchet MS",sans-serif;font-size:16px;line-height:1.4} button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:3px solid #8db9ff;outline-offset:2px}
+  header{max-width:1050px;margin:auto;padding:22px 22px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--ink)}.brand{font-size:27px;font-weight:800;letter-spacing:-.05em}.brand em{font:400 31px Georgia,serif;color:var(--urgent)}.status{font-size:13px;font-weight:700}.status i{width:9px;height:9px;border-radius:50%;background:var(--safe);display:inline-block;margin-right:7px}.status.replay i{background:var(--check)}.status.stale i{background:var(--urgent)}
+  main{max-width:1050px;margin:auto;padding:clamp(28px,5vw,72px) 22px;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(270px,.8fr);gap:clamp(36px,7vw,96px)}.eyebrow{margin:0;color:var(--quiet);font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.answer{margin:16px 0 14px;font:400 clamp(52px,8vw,102px)/.86 Georgia,serif;letter-spacing:-.07em}.safe{color:var(--safe)}.check{color:var(--check)}.urgent{color:var(--urgent)}.summary{font-size:clamp(19px,2vw,25px);max-width:28ch}.small{color:var(--quiet);font-size:14px}
+  .tasks{margin-top:38px;border-top:2px solid var(--ink)}.tasks h2,.side h2{font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin:0;padding:13px 0}.task{border-top:1px solid var(--line);padding:18px 0}.task:last-child{border-bottom:1px solid var(--line)}.task h3{margin:0;font-size:19px;letter-spacing:-.02em}.task p{margin:5px 0 14px;color:var(--quiet);font-size:14px}.label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--urgent);margin-right:8px}.actions{display:flex;gap:8px;flex-wrap:wrap}.primary,.secondary{border:0;padding:10px 13px;font-weight:800}.primary{background:var(--ink);color:var(--paper)}.primary:hover{background:var(--urgent)}.secondary{background:transparent;color:var(--ink);border:1px solid var(--ink)}.empty{padding:20px 0;color:var(--safe);font-weight:700}
+  .side{border-top:2px solid var(--ink)}.notice{padding:13px 0;border-top:1px solid var(--line)}.notice a{color:var(--ink);font-weight:800;text-decoration-thickness:1px;text-underline-offset:3px}.notice p{margin:4px 0;color:var(--quiet);font-size:14px}.notice small{color:var(--quiet)}details{border-top:1px solid var(--line);margin-top:24px;padding-top:12px}summary{cursor:pointer;font-weight:800}details p{color:var(--quiet);font-size:14px}form{display:grid;gap:8px;margin-top:12px}input{border:0;border-bottom:1px solid var(--ink);background:transparent;padding:8px 0;color:var(--ink)}.result{margin-top:10px;font-size:14px;font-weight:700}.hold_and_verify_lot{color:var(--urgent)}.review{color:var(--check)}.allow{color:var(--safe)}.source{margin-top:26px;padding-top:14px;border-top:1px solid var(--line);color:var(--quiet);font-size:13px}
+  @media(max-width:720px){header{padding:17px 18px}.status{font-size:12px}main{grid-template-columns:1fr;padding:38px 18px;gap:44px}.answer{font-size:clamp(54px,17vw,86px)}}
+</style>
+</head>
+<body>
+<header><div class="brand">Recall <em>Watch</em></div><div class="status" id="status"><i></i>Loading</div></header>
+<main>
+  <section>
+    <p class="eyebrow" id="kicker">Kitchen recall check</p>
+    <h1 class="answer" id="answer" aria-live="polite">…</h1>
+    <div class="summary" id="summary" aria-live="polite"></div>
+    <div class="tasks"><h2 id="task-heading">What to do now</h2><div id="tasks"></div></div>
+  </section>
+  <aside class="side">
+    <h2>Recent recall notices</h2><div id="notices"></div>
+    <details><summary>Check an incoming order</summary><p>Use this before ordering a product. A “hold” means ask the supplier to verify the lot and expiry date.</p><form id="order-form"><input id="order-name" required placeholder="Product name"><input id="order-ean" placeholder="Barcode / EAN (optional)"><button class="primary" type="submit">Check this order</button></form><div class="result" id="order-result" aria-live="polite"></div></details>
+    <details><summary>How does this work?</summary><p id="how"></p></details>
+    <div class="source" id="source"></div>
+  </aside>
+</main>
+<script>
+(() => {
+  const $=id=>document.getElementById(id),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])),day=t=>new Date(t*1000).toLocaleDateString("en-GB",{day:"numeric",month:"short"});
+  const WORDS=["Clear","Check this product","Quarantine & verify"],CSS=["safe","check","urgent"];let data,who="Kitchen staff";
+  async function load(){try{const r=await fetch("/state",{cache:"no-store"});data=await r.json();render()}catch(_){$("status").className="status stale";$("status").innerHTML="<i></i>Can't reach Recall Watch"}}
+  function taskCard(h,n){const urgent=h.level===2;const instruction=urgent?"Put this product aside, then compare the lot on the pack":"Check whether this is the same product and pack";const lot=n.lot?" (lot "+esc(n.lot)+")":"";const buttons='<div class="actions"><button class="primary" data-n="'+esc(h.notice)+'" data-p="'+esc(h.product)+'" data-a="quarantined">I quarantined it</button><button class="secondary" data-n="'+esc(h.notice)+'" data-p="'+esc(h.product)+'" data-a="not_this_lot">It’s another lot</button></div>';return '<article class="task"><h3><span class="label">'+(urgent?"Do now":"Check")+'</span>'+esc(h.product_name)+'</h3><p>'+instruction+lot+'.<br>'+esc(h.match_basis)+" · "+esc(h.confidence)+" confidence.</p>"+buttons+"</article>"}
+  function render(){
+    const replay=data.status.source==="replay",st=data.status,byId=Object.fromEntries(data.notices.map(n=>[n.id,n]));
+    $("kicker").textContent=data.kitchen+" · "+data.shelf_size+" products checked";$("answer").textContent=WORDS[data.level];$("answer").className="answer "+CSS[data.level];$("summary").textContent=data.answer;
+    $("status").className="status "+(replay?"replay ":"")+(st.stale?"stale":"");$("status").innerHTML="<i></i>"+(st.stale?"Needs a refresh":replay?"Demo replay":"Watching the web now");
+    const open=data.hits.filter(h=>!h.ack);$("task-heading").textContent=open.length?"What to do now":"You’re up to date";$("tasks").innerHTML=open.length?open.slice(0,5).map(h=>taskCard(h,byId[h.notice]||{})).join(""):'<div class="empty">No product on this shelf matches an open recall.</div>';
+    $("notices").innerHTML=data.notices.slice(0,5).map(n=>'<article class="notice"><a href="'+esc(n.url)+'" target="_blank" rel="noopener">'+esc(n.title)+'</a><p>'+esc(n.summary||"Open the source for the full notice.")+'</p><small>'+day(n.published_at)+" · "+(n.official?"Finnish Food Authority":"Other web source")+"</small></article>").join("")||"<p class='small'>No current notices.</p>";
+    $("how").textContent=replay?"This is a fast replay of recorded authority notices for demonstration.":"Context.dev watches the Finnish Food Authority’s recall list and other recall announcements. A barcode match is strongest; product-name matches require a pack and lot check.";$("source").textContent=replay?"Demo data: recorded 2026 authority notices.":"Live data: the Finnish Food Authority list and monitored recall announcements.";
+  }
+  $("tasks").addEventListener("click",async e=>{const b=e.target.closest("button[data-n]");if(!b)return;b.disabled=true;b.textContent="Saved";try{const r=await fetch("/ack",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({notice:b.dataset.n,product:b.dataset.p,action:b.dataset.a,who})});if(!r.ok)throw Error();await load()}catch(_){b.disabled=false;b.textContent="Try again"}});
+  $("order-form").addEventListener("submit",async e=>{e.preventDefault();const out=$("order-result"),name=$("order-name").value.trim(),ean=$("order-ean").value.trim();out.textContent="Checking…";try{const r=await fetch("/orders/check",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({items:[{name,ean}]})}),d=await r.json(),item=d.decisions?.[0];if(!item)throw Error();const words={allow:"Okay to order",review:"Check this product",hold_and_verify_lot:"Hold and verify the lot"};out.className="result "+item.decision;out.textContent=words[item.decision]||item.decision}catch(_){out.className="result";out.textContent="Could not check this right now."}});
+  load();setInterval(load,5000);
+})();
+</script>
+</body>
+</html>

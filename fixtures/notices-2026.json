@@ -1,0 +1,722 @@
+{
+ "source": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot/",
+ "read_on": "2026-11-14",
+ "note": "The 2026 notices on the Finnish Food Authority's recall list. Title, date and address are from the page. An AI model (Claude) read the other fields from each notice on 14 November 2026. Nobody checked them a second time. The summaries are our words.",
+ "notices": [
+  {
+   "id": "aidinmaidonkorvikkeen-takaisinveto-laajenee",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/aidinmaidonkorvikkeen-takaisinveto-laajenee/",
+   "title": "Äidinmaidonkorvikkeen takaisinveto laajenee",
+   "date": "2026-01-05",
+   "company": "Suomen Nestlé",
+   "brand": "Nestlé",
+   "products": [
+    "Nestlé NAN PRO 1 Äidinmaidonkorvike 200ml",
+    "Nestlé NAN PRO 1 Äidinmaidonkorvike 6x200ml monipakkaus",
+    "Nestlé NAN PRO 1 Äidinmaidonkorvike 500ml",
+    "Nestlé NAN PRO 1 Äidinmaidonkorvike 1000ml"
+   ],
+   "eans": [
+    "8445290748010",
+    "8445290748034",
+    "8445290748072",
+    "8445290747884",
+    "8445290382825",
+    "7613033507427",
+    "8445291160798",
+    "8445290170408"
+   ],
+   "lot": "several lots, listed in the notice",
+   "hazard": "microbe",
+   "allergens": [],
+   "summary": "Infant formula can hold cereulide."
+  },
+  {
+   "id": "aidinmaidonkorvikkeen-takaisinvetoon-yksi-lisatuote",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/aidinmaidonkorvikkeen-takaisinvetoon-yksi-lisatuote/",
+   "title": "Äidinmaidonkorvikkeen takaisinvetoon yksi lisätuote",
+   "date": "2026-01-15",
+   "company": "Suomen Nestlé",
+   "brand": "Nestlé",
+   "products": [
+    "Nestlé NAN A.R. 800g"
+   ],
+   "eans": [
+    "8445290635150"
+   ],
+   "lot": "lot 51570742F5, best before 12/2026",
+   "hazard": "microbe",
+   "allergens": [],
+   "summary": "A clinical infant formula can hold cereulide."
+  },
+  {
+   "id": "syomapuikoista-siirtyy-liikaa-melamiinia-ja-formaldehydia",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/syomapuikoista-siirtyy-liikaa-melamiinia-ja-formaldehydia/",
+   "title": "Syömäpuikoista siirtyy liikaa melamiinia ja formaldehydiä",
+   "date": "2026-01-26",
+   "company": "",
+   "brand": "",
+   "products": [
+    "muoviset syömäpuikot"
+   ],
+   "eans": [],
+   "lot": "",
+   "hazard": "contact_material",
+   "allergens": [],
+   "summary": "Plastic chopsticks release too much melamine and formaldehyde."
+  },
+  {
+   "id": "juomalasista-siirtyy-liikaa-lyijya-ja-kadmiumia",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/juomalasista-siirtyy-liikaa-lyijya-ja-kadmiumia/",
+   "title": "Juomalasista siirtyy liikaa lyijyä ja kadmiumia",
+   "date": "2026-01-29",
+   "company": "Tiger Stores Oy",
+   "brand": "Flying Tiger Copenhagen",
+   "products": [
+    "kukkakuvioinen juomalasi"
+   ],
+   "eans": [],
+   "lot": "",
+   "hazard": "contact_material",
+   "allergens": [],
+   "summary": "A drinking glass releases too much lead and cadmium."
+  },
+  {
+   "id": "aidinmaidonkorvikkeen-takaisinvetoon-lisaa-viela-kolme-eraa",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/aidinmaidonkorvikkeen-takaisinvetoon-lisaa-viela-kolme-eraa/",
+   "title": "Äidinmaidonkorvikkeen takaisinvetoon lisää vielä kolme erää",
+   "date": "2026-02-04",
+   "company": "Suomen Nestlé",
+   "brand": "Nestlé",
+   "products": [
+    "Nestlé NAN PRO 1 Äidinmaidonkorvike 800 g",
+    "Nestlé NAN Sensilac 1 Äidinmaidonkorvike 800 g"
+   ],
+   "eans": [
+    "8445290382825",
+    "8445290170408"
+   ],
+   "lot": "lots 53410346AH, 53250346AH and 53470346AB",
+   "hazard": "microbe",
+   "allergens": [],
+   "summary": "Infant formula can hold cereulide, a toxin of the bacterium Bacillus cereus."
+  },
+  {
+   "id": "yrttitee-sisaltaa-kiellettya-ainesosaa",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/yrttitee-sisaltaa-kiellettya-ainesosaa/",
+   "title": "Yrttitee sisältää kiellettyä ainesosaa",
+   "date": "2026-02-09",
+   "company": "",
+   "brand": "Slinmy",
+   "products": [
+    "Slinmy yrttitee 40 g"
+   ],
+   "eans": [
+    "8854575006576"
+   ],
+   "lot": "lot 6801, best before 02/04/2028",
+   "hazard": "chemical",
+   "allergens": [],
+   "summary": "A herbal tea holds dantron, which the EU forbids in food."
+  },
+  {
+   "id": "tiedote-kananmunalle-maidolle-ja-sinapinsiemenille-allergisille-coleslaw-salaattirasiassa-voi-olla-toisenlaista-coleslaw-salaattia",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/tiedote-kananmunalle-maidolle-ja-sinapinsiemenille-allergisille-coleslaw-salaattirasiassa-voi-olla-toisenlaista-coleslaw-salaattia/",
+   "title": "Tiedote kananmunalle, maidolle ja sinapinsiemenille allergisille: Coleslaw-salaattirasiassa voi olla toisenlaista coleslaw-salaattia",
+   "date": "2026-02-10",
+   "company": "Atria Suomi Oy",
+   "brand": "Atria",
+   "products": [
+    "Atria Coleslaw 300 g"
+   ],
+   "eans": [
+    "6407860065295"
+   ],
+   "lot": "use by 21.2.2026",
+   "hazard": "allergen",
+   "allergens": [
+    "egg",
+    "milk",
+    "mustard"
+   ],
+   "summary": "Some tubs belong to another product. Egg, milk and mustard seed are not declared."
+  },
+  {
+   "id": "syomapuikkojen-takaisinveto-laajenee",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/syomapuikkojen-takaisinveto-laajenee/",
+   "title": "Syömäpuikkojen takaisinveto laajenee",
+   "date": "2026-02-19",
+   "company": "",
+   "brand": "",
+   "products": [
+    "Chopsticks Helper Panda",
+    "Chopsticks Helper Bear",
+    "Chopsticks Helper Cat",
+    "Chopsticks Helper Pig",
+    "Chopsticks Helper Rabbit"
+   ],
+   "eans": [],
+   "lot": "product numbers 6094071 to 6094075",
+   "hazard": "contact_material",
+   "allergens": [],
+   "summary": "Plastic chopsticks release too much melamine and formaldehyde."
+  },
+  {
+   "id": "muffinssipakkauksessa-toista-tuotetta",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/muffinssipakkauksessa-toista-tuotetta/",
+   "title": "Muffinssipakkauksessa toista tuotetta",
+   "date": "2026-03-02",
+   "company": "Porokylän leipomo Oy",
+   "brand": "Porokylän",
+   "products": [
+    "Mansikkahoukutus-täytemuffinssi"
+   ],
+   "eans": [],
+   "lot": "best before 1.3., 4.3., 6.3. or 8.3.2026",
+   "hazard": "labelling",
+   "allergens": [],
+   "summary": "Some packs hold another muffin, so the label does not match the content."
+  },
+  {
+   "id": "suklaalevy-saattaa-sisaltaa-kovia-muovinpalasia",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/suklaalevy-saattaa-sisaltaa-kovia-muovinpalasia/",
+   "title": "Suklaalevy saattaa sisältää kovia muovinpalasia",
+   "date": "2026-03-02",
+   "company": "Mondelez Finland",
+   "brand": "Marabou",
+   "products": [
+    "Marabou Japp 160g"
+   ],
+   "eans": [],
+   "lot": "lot OUV0254051, best before 05.07.2026",
+   "hazard": "foreign_object",
+   "allergens": [],
+   "summary": "A chocolate bar can hold hard pieces of plastic."
+  },
+  {
+   "id": "suodatinkahvissa-vierasesineriski",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/suodatinkahvissa-vierasesineriski/",
+   "title": "Suodatinkahvissa vierasesineriski",
+   "date": "2026-03-06",
+   "company": "Meira Oy",
+   "brand": "Kulta Katriina",
+   "products": [
+    "Kulta Katriina Perinteinen suodatinkahvi 500 g"
+   ],
+   "eans": [],
+   "lot": "best before 23.8.2027, 24.8.2027, 26.8.2027, 1.9.2027 or 5.9.2027",
+   "hazard": "foreign_object",
+   "allergens": [],
+   "summary": "Filter coffee packs can hold pieces of metal."
+  },
+  {
+   "id": "proteiinipatukassa-allergeenivirhe-todettu-jaamaa-kananmunasta",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/proteiinipatukassa-allergeenivirhe-todettu-jaamaa-kananmunasta/",
+   "title": "Proteiinipatukassa allergeenivirhe; todettu jäämää kananmunasta",
+   "date": "2026-03-20",
+   "company": "Leader Foods",
+   "brand": "Leader",
+   "products": [
+    "Performance Protein Soft White Chocolate 60 g"
+   ],
+   "eans": [],
+   "lot": "lot x23725, best before 11.11.2026",
+   "hazard": "allergen",
+   "allergens": [
+    "egg"
+   ],
+   "summary": "A protein bar holds traces of egg."
+  },
+  {
+   "id": "suklaamoussejauheen-pakkauksesta-puuttuvat-suomen--ja-ruotsinkieliset-merkinnat",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/suklaamoussejauheen-pakkauksesta-puuttuvat-suomen--ja-ruotsinkieliset-merkinnat/",
+   "title": "Suklaamoussejauheen pakkauksesta puuttuvat suomen- ja ruotsinkieliset merkinnät",
+   "date": "2026-03-20",
+   "company": "Dr. Oetker Suomi Oy",
+   "brand": "Dr. Oetker",
+   "products": [
+    "Dr. Oetker Suklaamousse 95g"
+   ],
+   "eans": [],
+   "lot": "lot L5260, best before 03.2027",
+   "hazard": "labelling",
+   "allergens": [
+    "milk",
+    "gluten",
+    "egg",
+    "soy",
+    "nuts"
+   ],
+   "summary": "A chocolate mousse powder has labels in Danish only, so its allergens are not readable."
+  },
+  {
+   "id": "juomalasista-siirtyy-liikaa-lyijya-ja-kadmiumia-takaisinveto-laajenee",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/juomalasista-siirtyy-liikaa-lyijya-ja-kadmiumia-takaisinveto-laajenee/",
+   "title": "Juomalasista siirtyy liikaa lyijyä ja kadmiumia; takaisinveto laajenee",
+   "date": "2026-03-23",
+   "company": "Tiger Stores Oy",
+   "brand": "Flying Tiger Copenhagen",
+   "products": [
+    "juomalasi 220 ml"
+   ],
+   "eans": [],
+   "lot": "product numbers 3060031, 3057450, 3062993, 3052986, 3053912, 3055350",
+   "hazard": "contact_material",
+   "allergens": [],
+   "summary": "Drinking glasses release too much lead and cadmium."
+  },
+  {
+   "id": "suklaalevyssa-vaaran-tuotteen-etiketti-allergeenivaara",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/suklaalevyssa-vaaran-tuotteen-etiketti-allergeenivaara/",
+   "title": "Suklaalevyssä väärän tuotteen etiketti; allergeenivaara",
+   "date": "2026-03-27",
+   "company": "Lidl Suomi Ky",
+   "brand": "Ritter Sport",
+   "products": [
+    "Ritter Sport Nugat 100 g"
+   ],
+   "eans": [],
+   "lot": "",
+   "hazard": "allergen",
+   "allergens": [
+    "milk",
+    "nuts"
+   ],
+   "summary": "A chocolate bar carries the label of another product. Milk and hazelnut are not declared."
+  },
+  {
+   "id": "proteiinipatukassa-allergeenivirhe-todettu-jaamaa-kananmunasta.-takaisinveto-laajenee-uusiin-patukoihin-ja-proteiinijauheisiin",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/proteiinipatukassa-allergeenivirhe-todettu-jaamaa-kananmunasta.-takaisinveto-laajenee-uusiin-patukoihin-ja-proteiinijauheisiin",
+   "title": "Proteiinipatukassa allergeenivirhe; todettu jäämää kananmunasta - takaisinveto laajenee uusiin patukoihin ja proteiinijauheisiin",
+   "date": "2026-04-01",
+   "company": "Leader Foods",
+   "brand": "Leader",
+   "products": [
+    "Performance Protein Soft White Chocolate 60 g",
+    "Leader Performance Protein Soft Brownie 60 g",
+    "Performance Whey Chocolate 2 kg",
+    "Performance Whey Strawberry 500 g"
+   ],
+   "eans": [],
+   "lot": "several lots, listed in the notice",
+   "hazard": "allergen",
+   "allergens": [
+    "egg"
+   ],
+   "summary": "Protein bars and powders hold traces of egg from one raw material."
+  },
+  {
+   "id": "kaurajuoma-kahviin-25-dl--tuotteessa-sailyvyysongelma",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/kaurajuoma-kahviin-25-dl--tuotteessa-sailyvyysongelma/",
+   "title": "Kaurajuoma kahviin 2,5 dl -tuotteessa säilyvyysongelma",
+   "date": "2026-04-02",
+   "company": "Raisio",
+   "brand": "Elovena",
+   "products": [
+    "Elovena kaurajuoma kahviin 2,5 dl"
+   ],
+   "eans": [
+    "6411200000082"
+   ],
+   "lot": "best before 5.10.2026",
+   "hazard": "spoilage",
+   "allergens": [],
+   "summary": "An oat drink for coffee spoils before its date."
+  },
+  {
+   "id": "proteiinijuomassa-sailyvyysongelma",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/proteiinijuomassa-sailyvyysongelma/",
+   "title": "Proteiinijuomassa säilyvyysongelma",
+   "date": "2026-04-21",
+   "company": "Osuuskunta Maitomaa",
+   "brand": "BIG PRO",
+   "products": [
+    "BIG PRO suolainen karamelli proteiinijuoma 330 ml"
+   ],
+   "eans": [],
+   "lot": "best before 17.7.2026, lot 26083",
+   "hazard": "spoilage",
+   "allergens": [],
+   "summary": "A protein drink spoils before its date."
+  },
+  {
+   "id": "kiivissa-torjunta-ainejaamaa",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/kiivissa-torjunta-ainejaamaa/",
+   "title": "Kiivissä torjunta-ainejäämää myös toisessa erässä",
+   "date": "2026-05-12",
+   "company": "Satotukku Oy",
+   "brand": "Puro Gusto",
+   "products": [
+    "Puro Gusto kiivi 500 g"
+   ],
+   "eans": [],
+   "lot": "lot L: 1804 or L: 1905",
+   "hazard": "chemical",
+   "allergens": [],
+   "summary": "Kiwis hold too much residue of the pesticide fenthion."
+  },
+  {
+   "id": "valmisateriassa-ilmoittamatonta-sinappia",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/valmisateriassa-ilmoittamatonta-sinappia/",
+   "title": "Valmisateriassa ilmoittamatonta sinappia",
+   "date": "2026-05-13",
+   "company": "Lidl Suomi Ky",
+   "brand": "Kartanon",
+   "products": [
+    "Kartanon Kananuudelit täysjyvänuudeliateria 350 g"
+   ],
+   "eans": [],
+   "lot": "use by 26.5.2026 or earlier",
+   "hazard": "allergen",
+   "allergens": [
+    "mustard"
+   ],
+   "summary": "The noodles of a ready meal can hold undeclared mustard."
+  },
+  {
+   "id": "jaatelokakun-merkinnoista-puuttuu-tieto-kananmunasta-suomen-kielella",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/jaatelokakun-merkinnoista-puuttuu-tieto-kananmunasta-suomen-kielella/",
+   "title": "Jäätelökakun merkinnöistä puuttuu tieto kananmunasta suomen kielellä",
+   "date": "2026-05-15",
+   "company": "Suomen Jätskiauto Oy",
+   "brand": "",
+   "products": [
+    "Vanilja-suklaajäätelökakku 1L"
+   ],
+   "eans": [],
+   "lot": "",
+   "hazard": "labelling",
+   "allergens": [
+    "egg"
+   ],
+   "summary": "The Finnish label of an ice cream cake does not say that it can hold traces of egg."
+  },
+  {
+   "id": "toisessakin-valmisateriassa-ilmoittamatonta-sinapinsiementa",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/toisessakin-valmisateriassa-ilmoittamatonta-sinapinsiementa/",
+   "title": "Toisessakin valmisateriassa ilmoittamatonta sinapinsiementä",
+   "date": "2026-05-15",
+   "company": "HKFoods Finland Oy",
+   "brand": "Via",
+   "products": [
+    "Via Red Thai Curry 320 g"
+   ],
+   "eans": [
+    "6409100071899"
+   ],
+   "lot": "use by 9.6.2026 or earlier",
+   "hazard": "allergen",
+   "allergens": [
+    "mustard"
+   ],
+   "summary": "The noodles of a ready meal can hold undeclared mustard seed."
+  },
+  {
+   "id": "kuivatuissa-viikunoissa-yhdessa-erassa-hometoksiiniylitys",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/kuivatuissa-viikunoissa-yhdessa-erassa-hometoksiiniylitys/",
+   "title": "Kuivatuissa viikunoissa yhdessä erässä hometoksiiniylitys",
+   "date": "2026-05-21",
+   "company": "Lidl Suomi Ky",
+   "brand": "Alesto",
+   "products": [
+    "Alesto kuivattu viikuna 200 g"
+   ],
+   "eans": [],
+   "lot": "lot 5785, best before 28/02/2027",
+   "hazard": "chemical",
+   "allergens": [],
+   "summary": "Dried figs hold raised levels of ochratoxin A."
+  },
+  {
+   "id": "sinimailasen-iduissa-salmonellaepaily",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/sinimailasen-iduissa-salmonellaepaily/",
+   "title": "Sinimailasen iduissa salmonellaepäily",
+   "date": "2026-05-25",
+   "company": "Lounasitu Oy",
+   "brand": "Lounasitu",
+   "products": [
+    "Lounasitu sinimailasen idut 125 g",
+    "Lounasitu sinimailasen idut 1 kg"
+   ],
+   "eans": [
+    "6416332000504"
+   ],
+   "lot": "use by 2.6.2026 or earlier",
+   "hazard": "microbe",
+   "allergens": [],
+   "summary": "Alfalfa sprouts carry a salmonella risk. The 1 kg pack for professional kitchens is included."
+  },
+  {
+   "id": "proteiinipatukassa-toista-tuotetta-allergeenivaara",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/proteiinipatukassa-toista-tuotetta-allergeenivaara/",
+   "title": "Proteiinipatukassa toista tuotetta; allergeenivaara (maapähkinän lisäksi soijaa ja soijalesitiiniä)",
+   "date": "2026-05-28",
+   "company": "Lejos Oy",
+   "brand": "Barebells",
+   "products": [
+    "Barebells Soft Coco Choco proteiinipatukka 55g"
+   ],
+   "eans": [
+    "7340001805383"
+   ],
+   "lot": "lot L6055-R, best before 24.2.2027",
+   "hazard": "allergen",
+   "allergens": [
+    "peanut",
+    "soy"
+   ],
+   "summary": "Some wrappers hold another bar, with peanut and soy."
+  },
+  {
+   "id": "riisipuurossa-mahdollisesti-allergeenivaara",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/riisipuurossa-mahdollisesti-allergeenivaara/",
+   "title": "Riisipuurossa mahdollisesti allergeenivaara",
+   "date": "2026-08-03",
+   "company": "HoviRuoka Oy",
+   "brand": "HoviRuoka",
+   "products": [
+    "HoviRuoka Maidoton Riisipuuro 300 g"
+   ],
+   "eans": [],
+   "lot": "use by 8.8.2026",
+   "hazard": "allergen",
+   "allergens": [
+    "milk"
+   ],
+   "summary": "A milk-free rice porridge is suspected to hold milk."
+  },
+  {
+   "id": "rucolassa-torjunta-ainejaamia",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/rucolassa-torjunta-ainejaamia/",
+   "title": "Rucolassa torjunta-ainejäämiä",
+   "date": "2026-08-05",
+   "company": "Satotukku Oy",
+   "brand": "Foglia Sublime",
+   "products": [
+    "Foglia Sublime rucola 100 g"
+   ],
+   "eans": [],
+   "lot": "lot L:204",
+   "hazard": "chemical",
+   "allergens": [],
+   "summary": "Packed rocket holds residues of the pesticide acetamiprid."
+  },
+  {
+   "id": "kananmunien-takaisinveto",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/kananmunien-takaisinveto/",
+   "title": "Kananmunien takaisinveto",
+   "date": "2026-08-19",
+   "company": "Munax Oy",
+   "brand": "",
+   "products": [
+    "K-MENU Vapaa S/M10 530 g",
+    "KotKot Vapaa M10 580 g",
+    "Kotimaista Vapaa M10 580 g",
+    "Kotimaista Vapaa L151020 g",
+    "Laitilan Kanatarha Vapaa M15 870 g",
+    "Laitilan Kanatarha Vapaa M10 580 g",
+    "Laitilan Kanatarha Vapaa L15 1020 g",
+    "Laitilan Kanatarha Vapaa M24 1392 g",
+    "Laitilan Kanatarha Vapaa S30 1440 g"
+   ],
+   "eans": [
+    "6410405364074",
+    "4056489454960",
+    "6414893094918",
+    "6438460328329",
+    "6430017901429",
+    "6430017900309",
+    "6430017900583",
+    "6430017900347",
+    "6430017902105"
+   ],
+   "lot": "egg stamp 2FI164181 or 2FI164182, best before 8.9. or earlier",
+   "hazard": "microbe",
+   "allergens": [],
+   "summary": "Salmonella was found at a farm that supplies these eggs."
+  },
+  {
+   "id": "vegaaninen-raaste-saattaa-sisaltaa-maitoa",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/vegaaninen-raaste-saattaa-sisaltaa-maitoa/",
+   "title": "Vegaaninen raaste saattaa sisältää maitoa",
+   "date": "2026-08-28",
+   "company": "Lidl Suomi Ky",
+   "brand": "Vemondo",
+   "products": [
+    "Vemondo Vegan Topping Mozzarella Flavour 150 g"
+   ],
+   "eans": [],
+   "lot": "lot L1141152, best before 19.11.2026",
+   "hazard": "allergen",
+   "allergens": [
+    "milk"
+   ],
+   "summary": "A vegan grated topping can hold undeclared milk."
+  },
+  {
+   "id": "hasselpahkinalevitteen-pakkauksessa-vaarankieliset-merkinnat",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/hasselpahkinalevitteen-pakkauksessa-vaarankieliset-merkinnat/",
+   "title": "Hasselpähkinälevitteen pakkauksessa vääränkieliset merkinnät",
+   "date": "2026-09-04",
+   "company": "Aduki Oy",
+   "brand": "Good Good",
+   "products": [
+    "Good Good Suklaa-hassellevite 350g"
+   ],
+   "eans": [],
+   "lot": "lot L6079407, best before 20.9.2027",
+   "hazard": "labelling",
+   "allergens": [
+    "nuts",
+    "milk",
+    "peanut"
+   ],
+   "summary": "A hazelnut spread lacks Finnish and Swedish labels, so its allergens are not readable."
+  },
+  {
+   "id": "jaahilejuomissa-liikaa-glyserolia-e-422",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/jaahilejuomissa-liikaa-glyserolia-e-422/",
+   "title": "Jäähilejuomissa liikaa glyserolia (E 422)",
+   "date": "2026-09-17",
+   "company": "K.E. Sunqvist Oy",
+   "brand": "Frosty Pocket",
+   "products": [
+    "Frosty Pocket jäähilejuoma 150 ml"
+   ],
+   "eans": [],
+   "lot": "sold since summer 2025",
+   "hazard": "chemical",
+   "allergens": [],
+   "summary": "Slush ice drinks hold too much glycerol for children."
+  },
+  {
+   "id": "b3-vitamiinivalmisteissa-liikaa-nikotiinihappoa-tai-inositoliheksanikotinaattia",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/b3-vitamiinivalmisteissa-liikaa-nikotiinihappoa-tai-inositoliheksanikotinaattia/",
+   "title": "B3-vitamiinivalmisteissa liikaa nikotiinihappoa tai inositoliheksanikotinaattia",
+   "date": "2026-09-25",
+   "company": "",
+   "brand": "Life Extension",
+   "products": [
+    "Life Extension Vitamin B3 Niacin 500 mg",
+    "Life Extension No Flush Niacin 640 mg"
+   ],
+   "eans": [],
+   "lot": "all lots",
+   "hazard": "chemical",
+   "allergens": [],
+   "summary": "Food supplements hold far too much nicotinic acid."
+  },
+  {
+   "id": "proteiiniriisipuurossa-mahdollisesti-gluteenijaamia",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/proteiiniriisipuurossa-mahdollisesti-gluteenijaamia/",
+   "title": "Proteiiniriisipuurossa mahdollisesti gluteenijäämiä",
+   "date": "2026-10-01",
+   "company": "Juustoportti Oy",
+   "brand": "Juustoportti",
+   "products": [
+    "Juustoportti Proteiiniriisipuuro 300 g"
+   ],
+   "eans": [],
+   "lot": "use by 16.10.2026",
+   "hazard": "allergen",
+   "allergens": [
+    "gluten"
+   ],
+   "summary": "A protein rice porridge can hold spinach and traces of gluten."
+  },
+  {
+   "id": "taytetyn-patongin-ainesosaluettelo-virheellinen-allergeenivaara",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/taytetyn-patongin-ainesosaluettelo-virheellinen-allergeenivaara/",
+   "title": "Täytetyn patongin ainesosaluettelo virheellinen, allergeenivaara",
+   "date": "2026-10-06",
+   "company": "Lunden Food OÜ",
+   "brand": "Chef Lundén",
+   "products": [
+    "Chef Lundén Kana-caesar patonki 200 g"
+   ],
+   "eans": [],
+   "lot": "use by 07.10.2026",
+   "hazard": "allergen",
+   "allergens": [
+    "fish"
+   ],
+   "summary": "A filled baguette carries the label of another product. Anchovy is not declared."
+  },
+  {
+   "id": "kananmunien-takaisinveto2",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/kananmunien-takaisinveto2/",
+   "title": "Kananmunien takaisinveto",
+   "date": "2026-10-09",
+   "company": "Munax Oy",
+   "brand": "",
+   "products": [
+    "Kotimaista Ulko M10 580 g",
+    "Laitilan Kanatarha Ulko L6 408 g",
+    "Laitilan Kanatarha Ulko L10 680 g",
+    "Pirkka Ulko M8 464g"
+   ],
+   "eans": [
+    "6415715101210",
+    "6430017904017",
+    "6430017900576",
+    "6410405224316"
+   ],
+   "lot": "egg stamp 1FI15493, best before 28.10. or earlier",
+   "hazard": "microbe",
+   "allergens": [],
+   "summary": "Salmonella was found at a farm that supplies these eggs."
+  },
+  {
+   "id": "proteiinivanukkaissa-mahdollisesti-lasinsiruja",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/proteiinivanukkaissa-mahdollisesti-lasinsiruja/",
+   "title": "Proteiinivanukkaissa mahdollisesti lasinsiruja",
+   "date": "2026-10-26",
+   "company": "Arla Oy",
+   "brand": "Arla",
+   "products": [
+    "Arla Protein Suklaa vanukas 200g laktoositon",
+    "Arla Protein Suolainen kinuski vanukas 200g laktoositon",
+    "Arla Protein Vanilja vanukas 200g laktoositon"
+   ],
+   "eans": [],
+   "lot": "best before 08.01.2027, 09.01.2027, 22.01.2027 or 25.01.2027",
+   "hazard": "foreign_object",
+   "allergens": [],
+   "summary": "Three protein puddings can hold glass splinters."
+  },
+  {
+   "id": "pakastetussa-chilissa-kadmiumylitys",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/pakastetussa-chilissa-kadmiumylitys/",
+   "title": "Pakastetussa chilissä kadmiumylitys",
+   "date": "2026-10-27",
+   "company": "SOK",
+   "brand": "Coop",
+   "products": [
+    "Coop Chopped Chili 50 g"
+   ],
+   "eans": [
+    "7340191134195"
+   ],
+   "lot": "best before 31.7.2027",
+   "hazard": "chemical",
+   "allergens": [],
+   "summary": "Frozen chopped chili holds cadmium above the EU limit."
+  },
+  {
+   "id": "muovisessa-ensilusikassa-kontaktimateriaalivirhe",
+   "url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/muovisessa-ensilusikassa-kontaktimateriaalivirhe/",
+   "title": "Muovisessa ensilusikassa kontaktimateriaalivirhe",
+   "date": "2026-11-11",
+   "company": "SOK",
+   "brand": "Nuby",
+   "products": [
+    "Nuby ensilusikka 3 kpl"
+   ],
+   "eans": [],
+   "lot": "sold since September 2025",
+   "hazard": "contact_material",
+   "allergens": [],
+   "summary": "Plastic first spoons release bisphenol AF above the limit."
+  }
+ ]
+}
