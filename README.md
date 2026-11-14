@@ -36,6 +36,7 @@ Open `http://localhost:8030/`. For live data, copy `.env.example` to `.env` and 
 
 ## What is true today
 
-1. One test fails: its expected sentence is older than the "quarantine" wording.
-2. A code review on 14 November found nine open faults. Three of them let an order through for a product under an open recall. They are not fixed.
-3. The limits are in `HANDBOOK.md`, under "Limits to say out loud".
+1. All 31 tests pass.
+2. A code review on 14 November found nine faults. Three of them let an order through for a product under an open recall. All nine are fixed, and a test covers each one.
+3. `GET /blocked` and `POST /orders/check` agree: both hold a product that the screen quarantines.
+4. The backend never ran against the live API. The limits are in `HANDBOOK.md`, under "Limits to say out loud".

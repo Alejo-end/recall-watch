@@ -19,7 +19,7 @@ def main() -> None:
     totals = {1: 0, 2: 0}
     touched = 0
     for n in notices:
-        hits = [(lv, why, p) for p in shelf for lv, why in [match(n, p)] if lv]
+        hits = [(lv, why, p) for p in shelf for lv, why, _ in [match(n, p)] if lv]
         touched += bool(hits)
         for lv, why, p in sorted(hits, key=lambda h: -h[0]):
             totals[lv] += 1

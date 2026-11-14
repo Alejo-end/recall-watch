@@ -2,7 +2,10 @@ import hashlib
 import hmac
 import json
 import os
+import subprocess
+import sys
 import time
+from pathlib import Path
 
 os.environ["RECALL_NO_POLL"] = "1"
 os.environ["SOURCE"] = "replay"
@@ -90,6 +93,125 @@ def test_a_live_poll_reads_each_new_notice_once(monkeypatch):
     live.poll(now + 120)
     assert len(fake.read) == 2                                                  # nothing is read a second time
     appmod.board.clear()
+
+
+def test_a_change_that_fails_is_read_again_on_the_next_poll(monkeypatch):
+    monkeypatch.setattr(appmod, "KINDS", {})
+    fake, now = FakeClient(), 1_794_650_000.0
+    read, failed = fake.read_notice, []
+
+    def fail_once(item, now, official=True):
+        if not official and not failed:
+            failed.append(item["url"])
+            raise RuntimeError("no answer")
+        return read(item, now, official)
+
+    fake.read_notice = fail_once
+    live = appmod.LiveSource(now, client=fake)
+    live.kinds = appmod.KINDS
+    try:
+        live.poll(now)
+        assert False
+    except RuntimeError:
+        pass
+    assert "chg_1" in live.seen and "chg_2" not in live.seen and live.since < now
+    live.poll(now + 120)
+    assert fake.read == ["https://www.ruokavirasto.fi/elintarvikkeet/a/", "https://www.example.fi/recall"]
+    assert "chg_2" in live.seen
+    appmod.board.clear()
+
+
+def test_a_notice_that_fails_to_read_does_not_stop_the_others(monkeypatch):
+    monkeypatch.setattr(appmod, "KINDS", {})
+    fake, now = FakeClient(), 1_794_650_000.0
+    lists, read = [], fake.read_notice
+    items = [{"date": "2026-11-13", "title": "Broken", "url": "https://www.ruokavirasto.fi/elintarvikkeet/broken/"},
+             {"date": "2026-11-12", "title": "Coleslaw", "url": "https://www.ruokavirasto.fi/elintarvikkeet/a/"}]
+
+    def fail_broken(item, now, official=True):
+        if item["title"] == "Broken":
+            raise RuntimeError("no answer")
+        return read(item, now, official)
+
+    fake.read_notice = fail_broken
+    fake.changes = lambda since, kinds: []
+    fake.recall_list = lambda url: lists.append(url) or items
+    live = appmod.LiveSource(now, client=fake)
+    live.kinds = appmod.KINDS
+    live.poll(now)
+    assert fake.read == ["https://www.ruokavirasto.fi/elintarvikkeet/a/"]
+    assert [u["url"] for u in appmod.status["unread"]] == ["https://www.ruokavirasto.fi/elintarvikkeet/broken/"]
+    live.poll(now + 120)
+    assert len(lists) == 1                                                      # the next list check is an hour away
+    appmod.board.clear()
+
+
+def test_a_december_notice_is_read_in_early_january(monkeypatch):
+    monkeypatch.setattr(appmod, "KINDS", {})
+    fake, now = FakeClient(), ts("2027-01-04")
+    fake.changes = lambda since, kinds: []
+    fake.recall_list = lambda url: [
+        {"date": "2026-12-28", "title": "Coleslaw", "url": "https://www.ruokavirasto.fi/elintarvikkeet/december/"},
+        {"date": "2026-11-13", "title": "Too old", "url": "https://www.ruokavirasto.fi/elintarvikkeet/november/"}]
+    live = appmod.LiveSource(now, client=fake)
+    live.kinds = appmod.KINDS
+    live.poll(now)
+    assert fake.read == ["https://www.ruokavirasto.fi/elintarvikkeet/december/"]
+    appmod.board.clear()
+
+
+def test_a_database_with_a_bare_file_name_starts(tmp_path):
+    root = Path(appmod.__file__).resolve().parent.parent
+    env = {**os.environ, "RECALL_DB": "recall-test.sqlite", "PYTHONPATH": str(root)}
+    done = subprocess.run([sys.executable, "-c", "import recall.app"], cwd=tmp_path, env=env, capture_output=True, text=True)
+    assert done.returncode == 0, done.stderr
+    assert (tmp_path / "recall-test.sqlite").exists()
+
+
+def test_a_product_that_the_screen_quarantines_is_held_in_an_order(monkeypatch):
+    now = ts("2026-02-12")
+    appmod.board.add(Notice(id="name-notice", url="https://www.ruokavirasto.fi/name", title="Coleslaw", date="2026-02-10",
+                            published_at=ts("2026-02-10"), detected_at=now, brand="Atria", products=["Atria Coleslaw 300 g"]))
+    appmod.board.add(Notice(id="web-notice", url="https://www.example.fi/web", title="Butter", date="2026-02-10",
+                            published_at=ts("2026-02-10"), detected_at=now, official=False, eans=["6408430000135"]))
+    monkeypatch.setattr(appmod, "clock", lambda: now)
+    assert [p["id"] for p in client.get("/blocked").json()["products"]] == ["coleslaw"]
+    r = client.post("/orders/check", json={"items": [
+        {"id": "coleslaw", "name": "Atria Coleslaw 300 g", "brand": "Atria"},
+        {"id": "web", "name": "Butter", "ean": "6408430000135"},
+    ]}).json()["decisions"]
+    assert [d["decision"] for d in r] == ["hold_and_verify_lot", "review"]
+    assert r[0]["evidence"][0]["match_basis"] == "brand and product name"
+    assert r[1]["evidence"][0]["match_basis"] == "EAN code"    # the web notice gives check at most, and the basis stays
+    appmod.board.clear()
+
+
+def test_the_blocked_list_holds_more_than_two_hundred_hits(monkeypatch):
+    now = ts("2026-02-12")
+    for i in range(201):
+        appmod.board.add(Notice(id=f"n{i}", url=f"https://www.ruokavirasto.fi/n{i}", title="Coleslaw", date="2026-02-10",
+                                published_at=ts("2026-02-10"), detected_at=now, eans=["6407860065295"]))
+    monkeypatch.setattr(appmod, "clock", lambda: now)
+    assert len(client.get("/blocked").json()["products"]) == 201
+    appmod.board.clear()
+
+
+def test_the_order_check_reads_the_notices_under_the_lock(monkeypatch):
+    class CountingLock:
+        def __init__(self, lock):
+            self.lock, self.entered = lock, 0
+
+        def __enter__(self):
+            self.entered += 1
+            return self.lock.__enter__()
+
+        def __exit__(self, *exc):
+            return self.lock.__exit__(*exc)
+
+    lock = CountingLock(appmod.board.lock)
+    monkeypatch.setattr(appmod.board, "lock", lock)
+    assert client.post("/orders/check", json={"items": [{"name": "Atria Coleslaw 300 g"}]}).status_code == 200
+    assert lock.entered > 0
 
 
 def test_an_order_with_an_recalled_ean_is_held_for_lot_verification(monkeypatch):

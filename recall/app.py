@@ -13,7 +13,7 @@ import os
 import threading
 import time
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse
@@ -21,7 +21,7 @@ from pydantic import BaseModel
 
 from .config import ROOT, load_env, load_shelf, load_watch
 from .contextdev import ContextDev, domain, notice_id, parse_ts, verify_webhook
-from .engine import Board, Product, QUARANTINE, match, match_evidence
+from .engine import LEVEL_NAMES, QUARANTINE, Board, Product, match, match_evidence
 from .replay import Replay
 
 load_env()
@@ -30,14 +30,14 @@ SHELF, SHELF_NAME = load_shelf(CFG)
 SOURCE = os.environ.get("SOURCE") or ("live" if os.environ.get("CONTEXT_DEV_API_KEY") else "replay")
 POLL_S = float(os.environ.get("POLL_S", "1" if SOURCE == "replay" else "120"))
 DB = os.environ.get("RECALL_DB") or (":memory:" if SOURCE == "replay" else str(ROOT / "data" / "recall.sqlite"))
-if DB != ":memory:":
+if DB != ":memory:" and os.path.dirname(DB):   # a bare file name has no folder to create
     os.makedirs(os.path.dirname(DB), exist_ok=True)
 
 board = Board(SHELF, active_days=CFG.get("active_days", 30), db=DB)
 KINDS: dict[str, str] = {}   # Context.dev monitor id to kind, filled by the poller
 WAKE = threading.Event()     # a webhook sets it, and the poller then runs at once
 status = {"source": SOURCE, "poll_s": POLL_S, "last_ok": None, "last_error": None, "started": time.time(),
-          "shelf": SHELF_NAME, "news": [], "calls": {"list": 0, "notice": 0, "news": 0}}
+          "shelf": SHELF_NAME, "news": [], "unread": [], "calls": {"list": 0, "notice": 0, "news": 0}}
 
 
 class ReplaySource:
@@ -83,38 +83,52 @@ class LiveSource:
             if not self.kinds:
                 raise RuntimeError("No Recall Watch monitors exist. Run: uv run python -m recall.setup_monitors --create")
         changes = [c for c in self.client.changes(self.since, self.kinds) if c["id"] not in self.seen]
-        self.seen.update(c["id"] for c in changes)
-        if changes:
-            self.since = max(parse_ts(c.get("detected_at"), now) for c in changes)
         list_change = next((c for c in changes if c["kind"] == "list"), None)
         if list_change or now >= self.next_list:
             self.sync_list(now, parse_ts(list_change.get("detected_at"), now) if list_change else None)
-            self.next_list = now + CFG["list"]["recheck_minutes"] * 60
+        # A change is seen only after its handling ended. A change that fails stays unseen, `since`
+        # stays behind it, and the next poll reads it again.
         for c in changes:
             if c["kind"] == "web":
                 self.read_web_change(c, now)
+            self.seen.add(c["id"])
+        if changes:
+            self.since = max(parse_ts(c.get("detected_at"), now) for c in changes)
         if now >= self.next_news:
             status["news"] = self.client.news(CFG["news"]["query"], since=now - 7 * 86400)
             status["calls"]["news"] += 1
             self.next_news = now + CFG["news"]["news_minutes"] * 60
 
     def sync_list(self, now: float, monitor_detected_at: float | None) -> None:
-        """Read the list, then read each notice of this year that the database does not hold."""
+        """Read the list, then read each notice that the database does not hold.
+
+        It reads the notices of this year, and the notices that still count: a notice counts for
+        `active_days` after its date, also across the turn of the year. A notice that fails to read
+        does not stop the others. `status["unread"]` lists it, and the next list check reads it again.
+        """
         items = self.client.recall_list(CFG["list"]["url"])
         status["calls"]["list"] += 1
-        year = datetime.fromtimestamp(now, timezone.utc).strftime("%Y")
-        new = [i for i in items if i["date"].startswith(year) and notice_id(i["url"]) not in board.notices]
+        self.next_list = now + CFG["list"]["recheck_minutes"] * 60
+        day = datetime.fromtimestamp(now, timezone.utc)
+        first = min(f"{day:%Y}-01-01", f"{day - timedelta(days=board.active_days):%Y-%m-%d}")
+        new = [i for i in items if i["date"] >= first and not board.has(notice_id(i["url"]))]
+        unread = []
         for item in new[:CFG["list"].get("backfill_max", 40)]:
-            n = self.client.read_notice(item, now)
             status["calls"]["notice"] += 1
+            try:
+                n = self.client.read_notice(item, now)
+            except Exception as e:
+                unread.append({"url": item["url"], "error": f"{type(e).__name__}: {e}"[:300]})
+                continue
             n.monitor_detected_at = monitor_detected_at
             board.add(n)
+        status["unread"] = unread
 
     def read_web_change(self, c: dict, now: float) -> None:
         """A recall found elsewhere on the web. It is not from the authority, so it gives "check" at most."""
         official = domain(CFG["list"]["url"])
         for url in (c.get("matched_urls") or [c.get("url")])[:3]:
-            if not url or domain(url) == official or notice_id(url) in board.notices:
+            if not url or domain(url) == official or board.has(notice_id(url)):
                 continue
             n = self.client.read_notice({"url": url, "title": c.get("title") or ""}, now, official=False)
             status["calls"]["notice"] += 1
@@ -169,12 +183,15 @@ def state() -> dict:
 
 @app.get("/blocked")
 def blocked() -> dict:
-    """Open, high-confidence shelf matches for purchasing systems to hold for verification."""
-    s = board.state(clock())
-    hits = [h for h in s["hits"] if h["level"] == QUARANTINE and not h["ack"]]
-    return {"as_of": s["now"], "products": [
-        {"id": h["product"], "name": h["product_name"], "ean": board.by_id[h["product"]].ean,
-         "notice": board.notices[h["notice"]].url, "why": h["why"], "action": "hold_and_verify_lot"} for h in hits]}
+    """Every open "quarantine" hit on the shelf, for purchasing systems to hold for verification.
+
+    These are the hits that put the screen at "quarantine": an official notice with the same EAN
+    code, or with the same brand and name. `POST /orders/check` holds the same matches.
+    """
+    now = clock()
+    return {"as_of": now, "products": [
+        {"id": h["product"], "name": h["product_name"], "ean": h["ean"], "notice": h["url"], "why": h["why"],
+         "action": "hold_and_verify_lot"} for h in board.blocked(now)]}
 
 
 class OrderItem(BaseModel):
@@ -194,25 +211,28 @@ class OrderCheck(BaseModel):
 def check_order(body: OrderCheck) -> dict:
     """Return an allow, review, or hold decision before an ordering system submits an order.
 
+    A match at the level "quarantine" gives `hold_and_verify_lot`, the same matches that `GET /blocked`
+    lists for the shelf. A match at the level "check" gives `review`.
+
     A recall normally applies to specific lots. `hold` therefore stops an order only until a person
-    checks the supplier's lot and expiry details; it is not a claim that every future batch is unsafe.
+    checks the supplier's lot and expiry details. It is not a claim that every future batch is unsafe.
     """
     now = clock()
-    active = [n for n in board.notices.values() if n.published_at <= now < n.published_at + board.active_days * 86400]
+    active = board.active(now)
     decisions = []
     for item in body.items:
         candidate = Product(id=item.id or item.ean or item.name, name=item.name, brand=item.brand,
                             ean=item.ean, supplier=item.supplier)
         evidence = []
         for notice in active:
-            level, why = match(notice, candidate)
+            level, why, basis = match(notice, candidate)
             if not level:
                 continue
-            confidence, basis = match_evidence(level, why)
-            evidence.append({"notice": notice.url, "title": notice.title, "official": notice.official,
-                             "lot": notice.lot, "confidence": confidence, "match_basis": basis, "why": why})
-        strongest = max((e["confidence"] for e in evidence), default="none", key=("none", "low", "medium", "high").index)
-        decision = "hold_and_verify_lot" if strongest == "high" else "review" if evidence else "allow"
+            confidence, basis_words = match_evidence(level, basis)
+            evidence.append({"notice": notice.url, "title": notice.title, "official": notice.official, "lot": notice.lot,
+                             "level_name": LEVEL_NAMES[level], "confidence": confidence, "match_basis": basis_words, "why": why})
+        held = any(e["level_name"] == LEVEL_NAMES[QUARANTINE] for e in evidence)
+        decision = "hold_and_verify_lot" if held else "review" if evidence else "allow"
         decisions.append({"id": item.id, "name": item.name, "decision": decision, "evidence": evidence})
     return {"as_of": now, "decisions": decisions}
 

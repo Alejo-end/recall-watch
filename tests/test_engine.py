@@ -1,5 +1,5 @@
 from recall.config import load_shelf, load_watch
-from recall.engine import CHECK, CLEAR, DAY, PULL, Board, Notice, Product, match, name_tokens, size_tokens
+from recall.engine import CHECK, CLEAR, DAY, EAN, PULL, Board, Notice, Product, match, match_evidence, name_tokens, size_tokens
 from recall.replay import Replay, load_notices, ts
 
 SHELF, _ = load_shelf(load_watch())
@@ -19,7 +19,7 @@ def test_pack_sizes_are_not_name_words():
 
 def test_the_same_ean_code_is_a_pull_and_leading_zeros_do_not_matter():
     n = notice(brand="", products=["something else"], eans=["06407860065295"])
-    assert match(n, P["coleslaw"]) == (PULL, "same EAN code")
+    assert match(n, P["coleslaw"]) == (PULL, "same EAN code", EAN)
 
 
 def test_brand_and_name_is_a_pull_and_another_pack_is_a_check():
@@ -35,8 +35,15 @@ def test_another_brand_with_the_same_words_is_no_hit():
 
 
 def test_a_notice_that_is_not_from_the_authority_gives_check_at_most():
-    level, why = match(notice(official=False), P["coleslaw"])
+    level, why, _ = match(notice(official=False), P["coleslaw"])
     assert level == CHECK and "authority" in why
+
+
+def test_an_ean_match_that_is_not_from_the_authority_keeps_the_ean_code_as_its_basis():
+    level, why, basis = match(notice(official=False, eans=["6407860065295"]), P["coleslaw"])
+    assert level == CHECK and "authority" in why and basis == EAN
+    assert match_evidence(level, basis) == ("medium", "EAN code")
+    assert match_evidence(PULL, EAN) == ("high", "EAN code")
 
 
 def test_a_hit_counts_for_thirty_days_and_stops_when_a_person_records_an_action():
@@ -46,7 +53,7 @@ def test_a_hit_counts_for_thirty_days_and_stops_when_a_person_records_an_action(
     t = n.published_at
     s = b.state(t + DAY)
     assert s["level"] == PULL and s["blocked"] == ["coleslaw"]
-    assert "Atria Coleslaw 300 g is recalled" in s["answer"] and "egg, milk, mustard" in s["answer"]
+    assert "Quarantine Atria Coleslaw 300 g and verify the lot on the pack" in s["answer"] and "egg, milk, mustard" in s["answer"]
     assert b.state(t + 31 * DAY)["level"] == CLEAR and b.state(t - DAY)["level"] == CLEAR
     b.ack("n1", "coleslaw", "quarantined", "Aino", t + 2 * DAY)
     s = b.state(t + 3 * DAY)
@@ -76,7 +83,7 @@ def test_the_snapshot_of_2026_gives_every_level_on_the_demo_shelf():
     b = Board(SHELF)
     for n in notices:
         b.add(n)
-    levels = {max((lv for _, lv, _ in hits), default=CLEAR) for hits in b.hits.values()}
+    levels = {max((hit[1] for hit in hits), default=CLEAR) for hits in b.hits.values()}
     assert levels == {CLEAR, CHECK, PULL}
     assert sum(1 for hits in b.hits.values() if hits) == 7     # the seven products we chose for this
     assert b.state(ts("2026-11-14"))["level"] == PULL          # the pudding notice of 26 October is still open

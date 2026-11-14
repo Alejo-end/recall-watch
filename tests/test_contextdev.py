@@ -6,7 +6,8 @@ import httpx
 
 from pathlib import Path
 
-from recall.contextdev import NOTICE_SCHEMA, ContextDev, parse_recall_list, verify_webhook
+from recall.contextdev import NOTICE_SCHEMA, ContextDev, notice_id, parse_recall_list, verify_webhook
+from recall.replay import ts
 
 SECRET = "whsec_test"
 
@@ -70,6 +71,19 @@ def test_the_list_and_a_notice_are_read_with_the_documented_scrape_calls():
     assert n.date == "2026-10-06" and n.detected_at == 1_794_650_000.0 and n.extract_ms is not None
 
 
+def test_a_notice_read_before_nine_on_its_date_counts_at_once():
+    c = client(lambda req: httpx.Response(200, json={"json": {"requested": True, "success": True, "data": {}}}))
+    item = {"date": "2026-11-13", "title": "x", "url": "https://www.ruokavirasto.fi/x/"}
+    early = ts("2026-11-13", hour=7) + 35 * 60
+    assert c.read_notice(item, now=early).published_at == early
+    assert c.read_notice(item, now=early + 86400).published_at == ts("2026-11-13")   # a later read keeps 09:00 on the date
+
+
+def test_two_addresses_that_differ_only_by_the_query_are_two_notices():
+    assert notice_id("https://www.example.fi/recall?id=1") != notice_id("https://www.example.fi/recall?id=2")
+    assert notice_id("https://www.example.fi/recall/") == "example.fi/recall"
+
+
 def test_a_failed_read_is_an_error_and_not_an_empty_notice():
     c = client(lambda req: httpx.Response(200, json={"json": {"requested": True, "success": False, "data": None,
                                                               "error_code": "fetch_failed", "message": "no text"}}))
@@ -121,3 +135,6 @@ def test_a_webhook_signature_is_checked_as_the_docs_say():
     assert not verify_webhook(body, "t=1000", SECRET, now=1000)                     # no digest
     assert not verify_webhook(body, sign(body, 1000) + ",t=1", SECRET, now=1000)    # repeated key
     assert not verify_webhook(body, sign(body, 1000), "", now=1000)                 # no secret set
+    digest = sign(body, 1000).split("v1=")[1]
+    assert not verify_webhook(body, "t=1000,v1=" + "é" * 64, SECRET, now=1000)      # a digest that is not hex
+    assert not verify_webhook(body, "t=100²,v1=" + digest, SECRET, now=1000)        # a digit that is not ASCII

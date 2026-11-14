@@ -103,9 +103,11 @@ class ContextDev:
         d = out.get("data") or {}
         products = [p for p in d.get("products") or [] if isinstance(p, dict)]
         date = item.get("date") or iso(now)[:10]
+        # A notice counts from the moment this system reads it, also before 09:00 on its date.
+        published_at = min(parse_ts(date + "T09:00:00+02:00", now), now)
         return Notice(
             id=notice_id(item["url"]), url=item["url"], title=item.get("title") or "", date=date,
-            published_at=parse_ts(date + "T09:00:00+02:00", now), detected_at=now, source=domain(item["url"]),
+            published_at=published_at, detected_at=now, source=domain(item["url"]),
             official=official, company=d.get("company") or "", brand=d.get("brand") or "",
             products=[p.get("name") or "" for p in products], eans=[p.get("ean") or "" for p in products],
             lot=d.get("lot") or "", hazard=d.get("hazard") or "other", allergens=d.get("allergens") or [],
@@ -155,7 +157,9 @@ class ContextDev:
 
 
 def notice_id(url: str) -> str:
-    return (domain(url) + urlparse(url).path).rstrip("/")
+    """The domain, the path and the query of the address. Two pages that differ only by the query are two notices."""
+    u = urlparse(url)
+    return (domain(url) + u.path).rstrip("/") + ("?" + u.query if u.query else "")
 
 
 def parse_recall_list(html_text: str, base: str) -> list[dict]:
@@ -184,7 +188,7 @@ def verify_webhook(raw_body: bytes, header: str, secret: str, now: float | None 
             return False
         parts[pair[0]] = pair[1]
     t, v1 = parts.get("t", ""), parts.get("v1", "")
-    if not (t.isdigit() and len(t) <= 12 and len(v1) == 64):
+    if not (re.fullmatch(r"[0-9]{1,12}", t) and re.fullmatch(r"[0-9a-fA-F]{64}", v1)):
         return False
     if abs((now or time.time()) - int(t)) > tolerance_s:
         return False

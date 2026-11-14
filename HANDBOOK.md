@@ -42,7 +42,7 @@ The calls and their shapes come from docs.context.dev, read on 14 November. `rec
 
 The costs are from docs.context.dev/account/credits. A page monitor run costs 1 credit, and a search monitor run costs 2. A page scrape costs 1 credit, and a scrape with fields costs 5. A news search costs 1 credit for each 10 results. With the settings in `watch.yaml`, that is about 500 credits a day, plus 190 once for the 38 notices of this year. The team code gives 50,000 credits.
 
-Other systems can act on the answer. `GET /blocked` lists open high-confidence shelf matches with the EAN code, source notice, and `hold_and_verify_lot` action. `POST /orders/check` accepts proposed order items and returns `allow`, `review`, or `hold_and_verify_lot` with source evidence. A hold is not a claim that every future batch is unsafe: a person checks the supplier's lot and expiry details before ordering.
+Other systems can act on the answer. `GET /blocked` lists every open "quarantine" hit on the shelf with the EAN code, source notice, and `hold_and_verify_lot` action. `POST /orders/check` accepts proposed order items and returns `allow`, `review`, or `hold_and_verify_lot` with source evidence. It holds the same matches: an official notice with the same EAN code, or with the same brand and name. A hold is not a claim that every future batch is unsafe: a person checks the supplier's lot and expiry details before ordering.
 
 ## Run it
 
@@ -63,7 +63,7 @@ With live data:
 3. Create the monitors: `uv run python -m recall.setup_monitors`, then the same with `--create`.
 4. Start the backend as above. On start, it reads the list and the notices of this year. It keeps them in `data/recall.sqlite`, so a restart reads nothing twice.
 
-Run the tests: `uv run pytest`. 21 tests pass.
+Run the tests: `uv run pytest`. 31 tests pass.
 
 ## How the judges score
 
