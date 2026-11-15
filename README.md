@@ -1,76 +1,54 @@
 # Recall Watch
 
-Our entry to "The Web Is Your Real-Time Database" by Context.dev. Read `HANDBOOK.md` for the full explanation.
+**A food recall was published. Eighteen days later, the official shop still sold the exact product.** Recall Watch finds the public pages that have not caught up with an official recall, and gives the responsible person the evidence to act.
 
-## In brief
+![The first screen: one public page still needs review after an official recall, with the exact GTIN match and what the page shows now](docs/decks/shots/first-screen.png)
 
-Recall Watch finds the public product pages that have not caught up with an official recall. It turns each one into an accountable follow-up.
+## For the judges, in one minute
 
-A recall is a public notice that a food product must leave the market. The Finnish Food Authority lists these notices on a web page, as free text in Finnish. Context.dev finds the notices, reads their fields and watches the public pages that sell the product.
+| | |
+|---|---|
+| Challenge | Context.dev, "The Web Is Your Real-Time Database", Junction 2026 |
+| User | The recall or compliance lead at a retailer, a brand owner or a marketplace |
+| Problem | The Finnish Food Authority publishes recalls as free text. Shops and brand pages update late or never, and nobody watches them |
+| What it does | Context.dev reads each official notice, monitors the approved shop and brand pages every 10 minutes, and re-reads a page when it changes. Recall Watch shows only the pages that need a decision, with a receipt for each |
+| Why trust it | The product match comes from code (the official GTIN on the page), never from a model. A model only describes what the page shows, and a reviewer can correct it. Every receipt carries the Context.dev request id, the time, the words found on the page and a screenshot. Recall Watch drafts the message to the shop owner, and a person sends it |
+| What is real | Real notices and real shop pages: the case on the screen is a real recall and a real product page. A live proof on a test page we own shows the whole chain in under a minute. 97 tests, with a fake Context.dev client, so they spend no credits |
+| What it is not | Proof that recalled food was sold. "Appears purchasable" means the page showed normal purchase words. The next step asks the owner which lot the page sells |
 
-A food recall was published. Eighteen days later, the official shop still presented the exact GTIN as a normal product page. Recall Watch tells the responsible person where public information has not caught up, and keeps the evidence needed to act.
-
-The user is the recall or compliance lead at a retailer, a brand owner or a marketplace.
-
-## What the screen shows
-
-The first screen states one sentence, for example "1 public page still needs review after this official recall". Under it is the strongest row: the official recall, the product match, what the public page shows now, and two buttons.
-
-- Evidence receipt: the official notice and the product identity, and the Context.dev request id and time. It also shows a verbatim excerpt from the page, the screenshot, and why the page needs review.
-- Check page now: one fresh Context.dev read of the page.
-
-The review queue, the other cases, "add a page" and the Afterimage timeline are under "Review queue" on the same screen. The Afterimage timeline shows what each page still showed after the notice.
-
-The "Live proof" tab changes a public test page that the team owns. Context.dev detects the change, Recall Watch reads the page again, a new receipt appears and the queue updates. The test page is a public GitHub gist. It is stored apart from the real cases and is never mixed with retailer evidence.
-
-## The earlier kitchen screen
-
-![The kitchen screen at the level quarantine for one product. It shows the reason, the lot and the recent notices.](docs/screenshots/screen.png)
-
-The picture shows the earlier kitchen shelf prototype, in the demo replay of real notices from 2026. The shelf is our example of a school kitchen with 12 products. Its code is still in the folder (`recall/engine.py`, `recall/replay.py`, the `shelf` list in `watch.yaml`). Its routes stay for its regression tests. They are hidden from the API schema, and its poller runs only with `KITCHEN=1`.
-
-It has three levels:
-
-| Level | The screen says | When |
-|---|---|---|
-| 0 | Clear | No open notice names a product on the shelf |
-| 1 | Check | A notice names the same brand and name, or a similar name |
-| 2 | Quarantine and verify | An official notice has the same EAN code as a product on the shelf |
-
-## Run
-
-From `recall-watch/`, with `CONTEXT_DEV_API_KEY` in `.env`. You need `uv`.
+## Try it
 
 ```sh
-uv run uvicorn recall.app:app --host 0.0.0.0 --port 8030
+uv run uvicorn recall.app:app --port 8030
 ```
 
-Open http://localhost:8030/. Without a key, the screen shows the stored evidence, read-only.
+Open http://localhost:8030. With `CONTEXT_DEV_API_KEY` in `.env` it reads pages live. Without a key it shows stored evidence, read only. `uv run pytest` runs the 97 tests.
 
-To set up the live proof once on the demo machine:
+The live proof needs a one-time setup on the demo machine: `uv run python -m recall.proof setup` publishes the test page as a public GitHub gist and creates its Context.dev monitor.
 
-```sh
-uv run python -m recall.proof setup
-```
+## How it works
 
-This command publishes the test page as a public gist under the GitHub account of `gh auth login`, and creates its Context.dev monitor.
+1. **Notice:** Context.dev watches the Finnish Food Authority's recall list and reads each new notice into fields: product, GTIN, lots, reason.
+2. **Pages:** for each notice, Context.dev monitors the approved shop and manufacturer pages that sell the product.
+3. **Match:** code compares the official GTIN with the page, its address and its EAN. Only an exact GTIN is a match.
+4. **Change:** when a monitor reports a change, Recall Watch reads the page again and stores a new receipt.
+5. **Decision:** the screen shows the pages that still need review. "Contact owner" drafts a message with the notice, the GTIN, the lot and the evidence. Each decision and correction is counted, and the audit trail downloads as CSV.
 
-## Tests
+![An evidence receipt: the notice, the match, the Context.dev request, the words on the page and the screenshot](docs/decks/shots/receipt.png)
 
-```sh
-uv run pytest
-```
+## Limits we state
 
-All 97 tests pass. They use a fake Context.dev client and a fake gist. They spend no credits.
-
-## What is true today
-
-1. A code review on 14 November found faults in the kitchen prototype. Three of them let an order through for a product under an open recall. All are fixed, and a test covers each one.
-2. `GET /blocked` and `POST /orders/check` agree: both hold a product that the kitchen screen quarantines.
-3. The guard rails are in `HANDBOOK.md`, under "Guard rails".
+1. We started watching 18 to 20 days after these notices, so the screen says "still appears purchasable N days after the notice". It never claims how long a page took to update. A pilot that watches from the first hour measures that.
+2. Seven domains are approved today. A pilot runs on 10 retailer and manufacturer domains and measures a 4-hour target for each page.
 
 ## More
 
-- [HANDBOOK.md](HANDBOOK.md): how the loop, the review process and the guard rails work.
-- [PITCH.md](PITCH.md): the spoken pitch and the demo script.
-- [WINNING_LOOP.md](WINNING_LOOP.md): the Context.dev loop and the current evidence.
+| Document | For |
+|---|---|
+| [PITCH.md](PITCH.md) | The spoken pitch, the two-minute demo script and the answers to likely questions |
+| [HANDBOOK.md](HANDBOOK.md) | The loop, the review process and the guard rails |
+| [WINNING_LOOP.md](WINNING_LOOP.md) | The Context.dev loop and the current evidence |
+| [docs/KITCHEN_PROTOTYPE.md](docs/KITCHEN_PROTOTYPE.md) | The earlier kitchen shelf screen, whose code and tests are still here |
+| `docs/decks/` | The pitch deck |
+
+Built by team Kindergarten Engineering at Junction 2026.
