@@ -1,0 +1,16 @@
+.DS_Store
+node_modules/
+.env
+.env.*
+!.env.example
+__pycache__/
+.venv/
+.pytest_cache/
+.ruff_cache/
+dist/
+build/
+*.sqlite
+*.sqlite-*
+
+# Captured evidence (a database and pictures taken from web pages) is runtime data.
+evidence/
