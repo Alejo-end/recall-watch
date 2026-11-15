@@ -1,0 +1,4 @@
+id,name,brand,ean,supplier,stock_location,candidate_stock,next_service,open_order,lot,expiry
+coleslaw,Atria Coleslaw 300 g,Atria,6407860065295,Atria Suomi Oy,Cold store · rack 2,2 candidate tubs,Next lunch · salad counter,6 tubs due at 07:00,DEMO-LOT-21,2026-02-21
+eggs,Kotimaista Vapaa M10 580 g,Kotimaista,6414893094918,Kesko,Dry store · bay 4,1 unopened case,Tomorrow breakfast prep,,,2026-03-15
+coffee,Kulta Katriina Perinteinen suodatinkahvi 500 g,Kulta Katriina,,Meira,Dry store · bay 1,4 bags,,,COFFEE-7,2027-01-10

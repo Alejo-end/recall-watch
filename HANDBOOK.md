@@ -1,110 +1,118 @@
-# Handbook: Recall Watch
-
-This handbook explains our entry to "The Web Is Your Real-Time Database" by Context.dev. The brief is in `CHALLENGE_BRIEFS.md`. The entry replaces the S-Pankki entry, which had no code. Its first version, Station Pulse, was about transport. We changed the subject on 14 November, because the transport operator's own app already answers the rider.
+# Recall Watch handbook
 
 ## What it is
 
-A screen in a professional kitchen answers one question: is anything on my shelf recalled right now?
+Recall Watch is a Context.dev product for a recall or compliance lead. It answers one question: after an official recall, which public product pages still need a human check?
 
-A recall is a public notice that a food product must leave the market. In Finland, the Finnish Food Authority (Ruokavirasto) lists these notices on a web page. Each notice is free text in Finnish. It names the product, the lot and the reason.
+It is not an inventory system. A page state is the visible text of the page at the time of the Context.dev read. "Appears purchasable" does not prove that a recalled lot was in stock or sold.
 
-The screen answers in three levels, in large type, with the product, the reason, the lot and the source:
+"Afterimage" is the name of one feature: the timeline of what each public page still showed after the notice.
 
-| Level | The screen says | When |
-|---|---|---|
-| 0 | Clear | No open notice names a product on the shelf |
-| 1 | Check | A notice names a product of the same brand and name, but another pack or code |
-| 2 | Quarantine and verify | An official notice names a product on the shelf: same EAN code, or same brand and name. Check the lot before confirming it is affected |
+## The three tabs
 
-An EAN code is the number under the barcode of a pack. A notice counts for 30 days after its date. A person first quarantines a hit and checks the lot on the physical pack. They can record "Quarantined", "Confirmed affected", or "Another lot". The hit then stops counting, and the screen keeps the name and the day.
+The live tab shows real cases. Each row is a stored Context.dev observation of a real public page. The data is in `data/afterimage.sqlite`. Page text, screenshots and photos are in `data/artifacts/`. Git ignores both.
 
-The design rule is the same as in our Valio entry. Context.dev finds the notices and reads their fields. Plain code decides the answer (`recall/engine.py`).
+The first screen of the live tab shows one sentence and the strongest row of the featured case (`afterimage.featured_notice_url` in `watch.yaml`). Everything else is under "Review queue, other cases, add a page, Afterimage timeline". The "Pilot impact" block under it shows what a pilot measures and where the prototype stands today.
 
-## Why it matters
+The live proof tab changes a test page that the team owns, and shows each step of the loop as it happens. See "The controlled live proof" below.
 
-1. Of the 38 notices of 2026 on the list, 14 name an allergen: milk, egg, fish, gluten, peanut, nuts, soy or mustard. One example is a "milk-free" rice porridge that is suspected to hold milk (3 August 2026). In a school kitchen, a missed notice of this kind reaches a child with an allergy.
-2. Recalls also reach professional kitchens. The notice about alfalfa sprouts (25.5.2026) names the 1 kg pack for professional kitchens.
-3. We compared the 38 notices with the 17,546 products of the Valio Aimo challenge catalog. 9 notices name a product in it: 7 products at the level "quarantine", 5 of them by the same EAN code, and 14 at the level "check". The brief says that this catalog is synthetic, so this is not a fact about Valio. It shows that the matching works on a catalog of real size. Run it with `SHELF=valio uv run python -m recall.count`.
+The demo tab replays a simulated case on a simulated clock. It has its own banner and endpoint (`GET /afterimage/demo`). It never shares a row or a chart with the live tab.
 
-We do not know how a kitchen learns of a recall today, or how fast. Nobody asked a kitchen yet (`ASSUMPTIONS.md`).
+## What a reviewer does
 
-## How it uses live web data
+Each row states its next step. The actions:
 
-| Source | Context.dev call | How often | What it gives |
-|---|---|---|---|
-| The authority's recall list | A page monitor with instructions, so a judge reports only a new notice | Every 10 minutes, the shortest schedule | The signal that the list has a new notice |
-| The same list | Scrape as HTML | After each change, and once an hour | The date, title and address of each notice |
-| Each new notice | Scrape with a JSON schema | Once for each notice | Company, brand, products with EAN codes, lot, hazard, allergens, one English sentence |
-| Recalls announced elsewhere | A search monitor, then the same JSON scrape of each result | Every 10 minutes | A recall that a manufacturer or a shop chain announced. It gives "check" at most, because it is not from the authority |
-| News | News search | Every 30 minutes | Articles about recalls. The screen lists them. They give no level |
+| Button | Effect |
+|---|---|
+| Contact owner… | Drafts a message with the notice, GTIN, lots and the page evidence. The app sends nothing. It stores a draft. |
+| I sent it… | Records the sent message, the recipient and the reply deadline. The page then waits on the owner. |
+| `Confirm product identity…` | Shown for a partial name match. Compare the stored official photo with the stored page photo. |
+| Record the result… / Resolve… | Closes the page with one of five outcomes. Some outcomes need a note. "Page updated" is refused while the last read still shows the product for sale. |
+| Check page now | One fresh Context.dev read (about 6 credits), at most once every 5 minutes for each page. |
+| Evidence receipt | Five blocks first: the notice and the product identity, the Context.dev call, the verbatim excerpt, the screenshot, and why the page needs review. The full record is under "Full receipt". |
 
-The calls and their shapes come from docs.context.dev, read on 14 November. `recall/contextdev.py` names the page of each one. The backend reads all monitor changes every 2 minutes. Context.dev can also push a change by webhook, and the backend then reads at once. That needs an address that the internet can reach, so the demo polls.
+If the reply deadline passes or the page changes, a waiting page needs action again. If the page changes, a resolved page re-opens. Names are typed by the operator and are not verified.
 
-The costs are from docs.context.dev/account/credits. A page monitor run costs 1 credit, and a search monitor run costs 2. A page scrape costs 1 credit, and a scrape with fields costs 5. A news search costs 1 credit for each 10 results. With the settings in `watch.yaml`, that is about 500 credits a day, plus 190 once for the 38 notices of this year. The team code gives 50,000 credits.
+## How a case starts
 
-Other systems can act on the answer. `GET /blocked` lists every open "quarantine" hit on the shelf with the EAN code, source notice, and `hold_and_verify_lot` action. `POST /orders/check` accepts proposed order items and returns `allow`, `review`, or `hold_and_verify_lot` with source evidence. It holds the same matches: an official notice with the same EAN code, or with the same brand and name. A hold is not a claim that every future batch is unsafe: a person checks the supplier's lot and expiry details before ordering.
+- The list check reads the Food Authority list every hour. If the Context.dev list monitor reports a change, the list check runs at once. A notice from the last 3 days opens a case.
+- An operator pastes a ruokavirasto.fi notice address into "Open a case".
+- On first start with a key, the pilot case from `watch.yaml` (`afterimage.seed_case`) opens with its three approved pages.
 
-## Run it
+Each page stores how it was found: the search query and time for a suggestion, the `found` text for a seeded page, or "pasted by a person".
 
-Run every command from `recall-watch/`. You need `uv`.
+## The controlled live proof
 
-With no key, the screen replays the real notices of 2026 from `fixtures/notices-2026.json`. One day passes in 2 seconds, and the year starts again at its end. The screen says "Replay" at the bottom:
+A retailer will not change its page while a judge watches. The live proof uses a page that the team owns: a public GitHub gist with an invented product ("Demo Chili 400 g", EAN 2000000000015). The EAN prefix 200 is for in-store numbering only, so it names no real product. The page says on its face that it is a demo page and not a real shop.
 
+Set it up once on the demo machine. The command needs `CONTEXT_DEV_API_KEY` and a GitHub login (`gh auth login`, or `GITHUB_TOKEN` in `.env`):
+
+```sh
+uv run python -m recall.proof setup
 ```
+
+The command publishes the gist, opens the test case in its own database (`data/proof.sqlite`) and creates the page's Context.dev monitor. It stores the gist address in `data/proof.json`. A second run reuses both.
+
+A click on "Change the page now" does this:
+
+1. The app edits the gist: the product is for sale, or it carries a recall notice.
+2. The app asks Context.dev to run the page monitor now (`POST /v1/monitors/{id}/run`) and waits for the run.
+3. The normal loop reads Context.dev's change feed and re-reads the page with a fresh structured scrape. The observation keeps the change id.
+4. The new observation has its own evidence receipt.
+5. The review queue updates. If the page offers the product again, a resolved page re-opens.
+
+On 15 November 2026 the full chain took 42 to 57 seconds, about 28 seconds of it in the monitor run. If the monitor reports no change, the app reads the page directly and labels that step "fallback".
+
+To show a re-open, start from a page that shows the recall notice. Resolve it with "Resolve as page updated". Then change the page back on sale.
+
+The test case never shares a database, a row, a chart or an export with the real cases. Its receipts say "Test page owned by the team". Each run costs about 7 credits: 1 for the monitor run and about 6 for the scrape. The monitor also runs every 10 minutes (1 credit each run).
+
+## Guard rails
+
+Configure these under `afterimage:` in `watch.yaml`:
+
+- `allowed_domains`: only these domains can be watched. The test case allows only `gist.github.com`, and only one page.
+- `max_targets_per_case`, `max_cases`, `min_rescrape_seconds`, `scrape_budget_per_hour`.
+- `AFTERIMAGE_WRITE_KEY` in `.env`: if it is set, every change needs this operator key. If it is not set, only this computer can make changes, and other devices can only view.
+
+Photo downloads accept only public https addresses and raster image types, up to 5 MB.
+
+A restart does not read a page again for a monitor change that already produced an observation.
+
+## Run
+
+From `recall-watch/`, with `CONTEXT_DEV_API_KEY` in `.env`:
+
+```sh
 uv run uvicorn recall.app:app --host 0.0.0.0 --port 8030
 ```
 
-Open `http://localhost:8030/`. Add `?kiosk` to hide the mouse. To start the replay later in the year, set `REPLAY_FROM=2026-10-22`. To slow it, set `REPLAY_DAY_S=6`.
+The live loop runs whenever a Context.dev key is set. Set `AFTERIMAGE_LIVE=0` to stop it. If the live loop stops polling, `GET /health` returns 503.
 
-With live data:
+The folder also holds an earlier kitchen shelf prototype. Its routes stay for its regression tests and are hidden from the API schema. Its poller spends Context.dev credits, so it runs only with `KITCHEN=1`.
 
-1. Sign up at context.dev/signup and redeem the code JUNCTION26 at context.dev/dashboard/redeem-credits.
-2. Copy `.env.example` to `.env` and put the key in it.
-3. Create the monitors: `uv run python -m recall.setup_monitors`, then the same with `--create`.
-4. Start the backend as above. On start, it reads the list and the notices of this year. It keeps them in `data/recall.sqlite`, so a restart reads nothing twice.
+Other systems can act on the prototype's answer. `GET /blocked` lists every open "quarantine" hit on the shelf with the EAN code, source notice, and `hold_and_verify_lot` action. A hit is open while it is new or held for its lot check. `POST /orders/check` accepts proposed order items and returns `allow`, `review`, or `hold_and_verify_lot` with source evidence. It holds the same matches: an official notice with the same EAN code. A match on brand and name alone gives `review`. A hold is not a claim that every future batch is unsafe: a person checks the supplier's lot and expiry details before ordering.
 
-Run the tests: `uv run pytest`. 31 tests pass.
+## Evidence in the repository
 
-## How the judges score
+`data/` is ignored by git. A copy of the live evidence is in `evidence/`, and it is safe to publish. It keeps every case, page and observation, with the state, the Context.dev request id and the verbatim excerpt. It also keeps the SHA-256 of each page text and page photo. It keeps the Food Authority's notice photos. It leaves out the retailers' full page text, screenshots and product photos, because they are the retailers' content. It also leaves out reviewer actions and owner addresses. The receipt says which originals are withheld, and the hashes identify them on the demo machine. The test case of the live proof is not in this copy.
 
-The judges' questions are from the challenge page, read on 14 November. Each criterion counts 20%.
+If `data/` has no database at start, the app restores this copy by itself.
 
-| Criterion | The judges ask | Where we stand |
-|---|---|---|
-| Real-world impact | Does this connect to a real business or consumer need? | Fair. 14 of 38 notices this year name an allergen, and one names a pack for professional kitchens. We asked no kitchen how it learns of recalls today |
-| Creative use of live web data | One scrape call, or an interesting combination of different sources? | Fair. A page monitor, a page scrape, field extraction with a schema, a search monitor and news combine with the kitchen's own product list. No call ran live yet |
-| Completeness of demo | How ready is it for production? | Fair. The state is on disk, a person records each action, and the screen shows stale data. Missing: a live run, sign-in for the person who records an action, and the link to the gateway |
-| Technical execution | Latency and accuracy of data | Weak until the live run. The screen shows the delay of each notice and the time that Context.dev took to read it, but only live data fills these. For accuracy, see "What we checked by hand" |
-| Real-timeness | Does it react to change over time, or take a one-off snapshot? | Fair. Monitors run every 10 minutes, notices fade after 30 days, and the year line shows each notice. The list gets about one notice a week, so a live demo mostly says "Clear". The replay shows the change over time |
+```sh
+uv run python -m recall.evidence export          # refresh the published copy from data/
+uv run python -m recall.evidence export --full   # a private copy that also holds the retailer pages
+uv run python -m recall.evidence restore         # reset data/ to the copy; the old database is kept as a .bak file
+```
 
-## What we checked by hand
+Reads made before receipts existed (14 November, 19:38 to 20:35) show "no receipt" in the trail. Each row's "Evidence receipt" button opens the latest read.
 
-1. On the demo shelf, 7 of the 38 notices give a hit: 6 "quarantine" and 1 "check". We chose these seven products for that, so this result proves only that the code runs.
-2. On the Valio challenge catalog, an AI model read all 21 hits. Of the 7 "quarantine" hits, 5 have the same EAN code as the notice. The other 2 have the same brand, name and pack size. Of the 14 "check" hits, about half are the recalled product in another pack. The others are another product of the same line, for example a flavoured oat drink for a recall of the plain one. An earlier rule gave one wrong hit: a red curry of another brand. We removed that rule, and a test covers it.
-3. Nobody counted the recalled products that the matching misses. A product with another spelling of its name and no EAN code in the notice is missed.
+## Verification
 
-## What is true today
+```sh
+uv run pytest
+```
 
-| Part | State |
-|---|---|
-| Rule from notices to the answer (`recall/engine.py`) | Built, with tests |
-| Context.dev calls (`recall/contextdev.py`) | Built from the documentation. Tested against a fake server. The backend never ran against the live API: it has no key |
-| Two live calls by hand, through Context.dev's MCP server, on 14 November | The list scrape returned the list with the markup that our parser reads. The field scrape of the egg notice of 9 October returned the company, the four products and the four EAN codes, the same as in our snapshot. It wrote the lot and the summary in Finnish, so the instructions now ask for English. One notice is not a measure of accuracy |
-| List parser | Tested against a part of the real page, saved on 14 November |
-| Snapshot of 2026 (`fixtures/notices-2026.json`) | 38 notices. Title, date and address are from the page. An AI model read the other fields. Nobody checked them a second time |
-| Replay (`recall/replay.py`) | Works |
-| Screen (`web/index.html`) | Works on the replay at 1512 by 778, checked in a browser on 14 November. Not checked at phone width |
-| Record of an action (`POST /ack`) | Works. It takes any name, with no sign-in |
-| Webhook receiver (`/webhooks/context`) | Built, and the signature check is tested. Not used in the demo: it needs a public address |
+97 tests pass. They cover the timeline and SLA rules, the review states, identity matching and the guard rails. They also cover receipts, stored photos, the replay, the live proof and the Context.dev request shapes. They use a fake Context.dev client and a fake gist, and spend no credits.
 
-## Limits to say out loud
-
-1. The screen cannot see the lot on the pack. It says "quarantine and verify" for an official match, and a person compares the lot before confirming the product is affected.
-2. Matching uses the EAN code, or the brand and the words of the name. A notice with no EAN code and another spelling is missed.
-3. The shelf list is a file that we wrote. In a real kitchen it must come from the stock or the orders, for example from the Valio gateway.
-4. A notice counts for 30 days. That number is our choice. A product with a long shelf life can stay on a shelf longer.
-5. The authority's list is in Finnish. Context.dev reads the fields in the live run. It read one notice correctly. We do not know yet how well it reads the others.
-6. A recall that a search finds is not checked by anyone. It gives "check" at most, and it can be old or about another country.
-7. The monitors run every 10 minutes at most, so the screen can be 12 minutes behind the list.
-8. We have no agreement with the Finnish Food Authority, and no kitchen uses the screen.
-9. This is not a medical device and not an official warning channel. The notice at the source decides.
+For the spoken pitch, use [PITCH.md](PITCH.md). For the loop and the current evidence, use [WINNING_LOOP.md](WINNING_LOOP.md).

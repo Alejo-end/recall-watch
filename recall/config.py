@@ -9,6 +9,7 @@ from pathlib import Path
 import yaml
 
 from .engine import Product
+from .importer import products_from_csv
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -37,6 +38,9 @@ def load_shelf(cfg: dict) -> tuple[list[Product], str]:
     SHELF=valio reads the product file of the Valio Aimo challenge instead of the list in watch.yaml.
     That file is synthetic data of the challenge. Git ignores it.
     """
+    if os.environ.get("STOCK_CSV"):
+        path = Path(os.environ["STOCK_CSV"])
+        return products_from_csv(path.read_text()), f"Stock import: {path.name}"
     if os.environ.get("SHELF") == "valio":
         folder = Path(os.environ.get("VALIO_DATA_DIR") or ROOT.parent / "valio-challenge" / "data" / "valio")
         raw = json.loads((folder / "valio_aimo_junction26_product_data.json").read_text())

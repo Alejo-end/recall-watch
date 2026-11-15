@@ -6,7 +6,7 @@ import httpx
 
 from pathlib import Path
 
-from recall.contextdev import NOTICE_SCHEMA, ContextDev, notice_id, parse_recall_list, verify_webhook
+from recall.contextdev import NOTICE_SCHEMA, PUBLIC_PAGE_SCHEMA, ContextDev, notice_id, parse_recall_list, verify_webhook
 from recall.replay import ts
 
 SECRET = "whsec_test"
@@ -65,7 +65,7 @@ def test_the_list_and_a_notice_are_read_with_the_documented_scrape_calls():
     assert items == [{"date": "2026-10-06", "title": "Patonki", "url": "https://www.ruokavirasto.fi/elintarvikkeet/x/patonki/"}]
     n = c.read_notice(items[0], now=1_794_650_000.0)
     assert bodies[0] == ("https://api.context.dev/v1/web/scrape", {"url": "https://www.ruokavirasto.fi/elintarvikkeet/list/", "formats": {"html": True}})
-    assert bodies[1][1]["formats"] == {"json": True} and bodies[1][1]["jsonParams"]["schema"] == NOTICE_SCHEMA
+    assert bodies[1][1]["formats"] == {"json": True, "images": True} and bodies[1][1]["jsonParams"]["schema"] == NOTICE_SCHEMA
     assert n.id == "ruokavirasto.fi/elintarvikkeet/x/patonki" and n.official and n.source == "ruokavirasto.fi"
     assert n.brand == "Chef Lundén" and n.allergens == ["fish"] and n.eans == [] and n.extracted_by == "context.dev"
     assert n.date == "2026-10-06" and n.detected_at == 1_794_650_000.0 and n.extract_ms is not None
@@ -92,6 +92,22 @@ def test_a_failed_read_is_an_error_and_not_an_empty_notice():
         assert False
     except RuntimeError as e:
         assert "fetch_failed" in str(e)
+
+
+def test_a_public_page_observation_uses_a_narrow_visible_state_schema():
+    seen = {}
+
+    def handler(req):
+        seen["body"] = json.loads(req.content)
+        return httpx.Response(200, json={"json": {"success": True, "data": {
+            "state": "active_listing", "evidence": "A price and add-to-cart control are visible.", "page_title": "Product"}}})
+
+    observation = client(handler).observe_public_page("https://shop.example.fi/coleslaw", "Atria Coleslaw 300 g", "6407860065295")
+    assert seen["body"]["jsonParams"]["schema"] == PUBLIC_PAGE_SCHEMA
+    assert seen["body"]["maxAgeMs"] == 0          # never an observation from Context.dev's cache
+    assert seen["body"]["formats"] == {"json": True, "markdown": True, "product": True, "screenshot": True}
+    assert "Do not infer stock" in seen["body"]["jsonParams"]["instructions"]
+    assert observation["state"] == "active_listing" and observation["page_title"] == "Product"
 
 
 def test_a_monitor_runs_every_ten_minutes_with_our_tags():
@@ -138,3 +154,21 @@ def test_a_webhook_signature_is_checked_as_the_docs_say():
     digest = sign(body, 1000).split("v1=")[1]
     assert not verify_webhook(body, "t=1000,v1=" + "é" * 64, SECRET, now=1000)      # a digest that is not hex
     assert not verify_webhook(body, "t=100²,v1=" + digest, SECRET, now=1000)        # a digit that is not ASCII
+
+
+def test_a_notice_read_without_a_list_entry_takes_its_headline_and_date_from_the_page():
+    def handler(req):
+        return httpx.Response(200, json={"json": {"success": True, "data": {
+            "title_fi": "Proteiinivanukkaissa mahdollisesti lasinsiruja", "published_date": "2026-10-26",
+            "title_en": "Possible glass fragments in protein puddings", "summary": "Glass risk."}}})
+
+    n = client(handler).read_notice({"url": "https://www.ruokavirasto.fi/x/", "title": ""}, 1_794_000_000)
+    assert n.title.startswith("Proteiini") and n.date == "2026-10-26" and n.title_en.startswith("Possible")
+
+
+def test_only_the_product_photos_of_a_notice_are_kept():
+    from recall.contextdev import notice_images
+    imgs = [{"url": "https://www.ruokavirasto.fi/static/img/logos/rv-logo.svg"},
+            {"url": "https://www.ruokavirasto.fi/globalassets/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot/2026/coop-chopped-chili..png", "alt": "Coop Chopped Chili"},
+            {"url": "data:image/png;base64,xx"}]
+    assert notice_images(imgs) == [{"url": imgs[1]["url"], "alt": "Coop Chopped Chili"}]

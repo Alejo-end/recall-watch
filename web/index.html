@@ -4,49 +4,682 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Recall Watch</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231b211d'/%3E%3Ccircle cx='19.5' cy='13' r='7.5' fill='none' stroke='%23f3efe4' stroke-opacity='.45' stroke-width='2.5'/%3E%3Ccircle cx='13' cy='19' r='7.5' fill='%23b92d25'/%3E%3C/svg%3E">
+<link href="/fonts/fonts.css" rel="stylesheet">
 <style>
-  :root { --paper:#f5f1e8; --ink:#1b2028; --quiet:#697078; --line:#d4cec0; --safe:#1c67c9; --check:#a45d00; --urgent:#bd273c; }
-  *{box-sizing:border-box} body{margin:0;background:var(--paper);color:var(--ink);font-family:"Avenir Next","Trebuchet MS",sans-serif;font-size:16px;line-height:1.4} button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:3px solid #8db9ff;outline-offset:2px}
-  header{max-width:1050px;margin:auto;padding:22px 22px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--ink)}.brand{font-size:27px;font-weight:800;letter-spacing:-.05em}.brand em{font:400 31px Georgia,serif;color:var(--urgent)}.status{font-size:13px;font-weight:700}.status i{width:9px;height:9px;border-radius:50%;background:var(--safe);display:inline-block;margin-right:7px}.status.replay i{background:var(--check)}.status.stale i{background:var(--urgent)}
-  main{max-width:1050px;margin:auto;padding:clamp(28px,5vw,72px) 22px;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(270px,.8fr);gap:clamp(36px,7vw,96px)}.eyebrow{margin:0;color:var(--quiet);font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.answer{margin:16px 0 14px;font:400 clamp(52px,8vw,102px)/.86 Georgia,serif;letter-spacing:-.07em}.safe{color:var(--safe)}.check{color:var(--check)}.urgent{color:var(--urgent)}.summary{font-size:clamp(19px,2vw,25px);max-width:28ch}.small{color:var(--quiet);font-size:14px}
-  .tasks{margin-top:38px;border-top:2px solid var(--ink)}.tasks h2,.side h2{font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin:0;padding:13px 0}.task{border-top:1px solid var(--line);padding:18px 0}.task:last-child{border-bottom:1px solid var(--line)}.task h3{margin:0;font-size:19px;letter-spacing:-.02em}.task p{margin:5px 0 14px;color:var(--quiet);font-size:14px}.label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--urgent);margin-right:8px}.actions{display:flex;gap:8px;flex-wrap:wrap}.primary,.secondary{border:0;padding:10px 13px;font-weight:800}.primary{background:var(--ink);color:var(--paper)}.primary:hover{background:var(--urgent)}.secondary{background:transparent;color:var(--ink);border:1px solid var(--ink)}.empty{padding:20px 0;color:var(--safe);font-weight:700}
-  .side{border-top:2px solid var(--ink)}.notice{padding:13px 0;border-top:1px solid var(--line)}.notice a{color:var(--ink);font-weight:800;text-decoration-thickness:1px;text-underline-offset:3px}.notice p{margin:4px 0;color:var(--quiet);font-size:14px}.notice small{color:var(--quiet)}details{border-top:1px solid var(--line);margin-top:24px;padding-top:12px}summary{cursor:pointer;font-weight:800}details p{color:var(--quiet);font-size:14px}form{display:grid;gap:8px;margin-top:12px}input{border:0;border-bottom:1px solid var(--ink);background:transparent;padding:8px 0;color:var(--ink)}.result{margin-top:10px;font-size:14px;font-weight:700}.hold_and_verify_lot{color:var(--urgent)}.review{color:var(--check)}.allow{color:var(--safe)}.source{margin-top:26px;padding-top:14px;border-top:1px solid var(--line);color:var(--quiet);font-size:13px}
-  @media(max-width:720px){header{padding:17px 18px}.status{font-size:12px}main{grid-template-columns:1fr;padding:38px 18px;gap:44px}.answer{font-size:clamp(54px,17vw,86px)}}
+:root{--paper:#f3efe4;--card:#faf8f1;--ink:#1b211d;--soft:#5f675f;--line:#cfcbbb;--green:#24634d;--amber:#a8520f;--red:#b92d25;--blue:#314e82;--grey:#8b8f86;
+--mono:"DM Mono",ui-monospace,monospace;--sans:"Space Grotesk",system-ui,sans-serif;--serif:"Fraunces",Georgia,serif}
+*{box-sizing:border-box}html,body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.4 var(--sans)}
+button,input{font:inherit;color:inherit}button{cursor:pointer}:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+a{color:var(--blue);text-underline-offset:3px}
+.wrap{max-width:1240px;margin:auto;padding:0 24px}
+.top{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:14px 0;border-bottom:1px solid var(--ink)}
+.brand{font:700 18px/1 var(--sans);letter-spacing:-.06em;text-transform:uppercase}
+.powered{display:flex;align-items:center;gap:7px;margin-right:auto;padding-left:14px;border-left:1px solid var(--line);font:10px/1 var(--mono);color:var(--soft);text-transform:uppercase;letter-spacing:.08em;text-decoration:none}.powered img{height:17px;display:block}.powered:hover{color:var(--ink)}
+.cdlogo{height:12px;vertical-align:-2px;margin-right:4px}.brand em{font:500 22px/1 var(--serif);text-transform:none;color:var(--red);margin-left:3px;letter-spacing:-.05em}
+.tabs{display:flex;border:1px solid var(--ink)}.tabs button{border:0;background:none;padding:7px 12px;font:500 11px var(--mono);text-transform:uppercase;letter-spacing:.05em}.tabs button[aria-pressed=true]{background:var(--ink);color:var(--paper)}
+.who{display:flex;align-items:center;gap:6px;font:11px var(--mono);color:var(--soft)}.who input{width:130px;padding:6px 8px;border:1px solid var(--line);background:var(--card)}
+.banner{margin:14px 0 0;padding:9px 12px;font:12px/1.4 var(--mono);border:1px solid var(--line);background:var(--card)}.banner.sim{border-color:var(--amber);color:var(--amber);background:repeating-linear-gradient(135deg,transparent 0 10px,color-mix(in srgb,var(--amber) 6%,transparent) 10px 20px)}.banner.live{border-color:var(--green);color:var(--green)}
+.openform{display:flex;gap:6px;margin-top:8px}.openform input{flex:1;min-width:0;padding:7px 9px;border:1px solid var(--line);background:var(--card);font-size:13px}
+.cases{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}.cases button{border:1px solid var(--line);background:var(--card);padding:6px 10px;font:12px/1.2 var(--sans);text-align:left;max-width:320px}.cases button small{display:block;font:10px var(--mono);color:var(--soft)}.cases button[aria-current=true]{border-color:var(--ink);box-shadow:inset 0 -3px 0 var(--ink)}
+.eyebrow{margin:0 0 6px;font:500 10px/1.2 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--blue)}
+.case{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr);gap:32px;padding:22px 0 18px;border-bottom:3px solid var(--ink)}
+.case h1,.case .h1like{font:500 clamp(22px,2.4vw,32px)/1.08 var(--serif);letter-spacing:-.03em;margin:0 0 8px}
+.fi{margin:0 0 8px;font:14px/1.35 var(--sans)}.fi b,.prov b{font:500 10px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--soft);margin-right:6px}
+.prov{margin:0 0 10px;color:var(--soft);font-size:12px}
+.facts{display:flex;flex-wrap:wrap;gap:6px 22px;font:12px var(--mono);color:var(--soft)}.facts span b{display:block;color:var(--ink);font:500 13px var(--sans)}
+.verdict{border-left:3px solid var(--red);padding-left:16px;align-self:start}.verdict.ok{border-color:var(--green)}
+.verdict p.big{font:500 clamp(20px,2vw,27px)/1.12 var(--serif);letter-spacing:-.03em;margin:0 0 12px}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.tile{background:var(--card);border:1px solid var(--line);padding:8px}.tile b{display:block;font:600 22px/1 var(--sans)}.tile span{font:10px/1.2 var(--mono);color:var(--soft);text-transform:uppercase;letter-spacing:.04em}
+.clockbasis{margin:10px 0 0;font:11px/1.4 var(--mono);color:var(--soft)}
+.add{margin:18px 0 0;padding:16px;border:2px solid var(--ink);background:var(--card)}
+.add h2{font:600 16px/1.1 var(--sans);margin:0 0 3px}.add p{margin:0 0 10px;color:var(--soft);font-size:13px}
+.addform{display:grid;grid-template-columns:minmax(0,1fr) 180px auto;gap:8px}.addform input{padding:10px;border:1px solid var(--ink);background:var(--paper);min-width:0}
+.btn{border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:9px 14px;font:500 11px var(--mono);text-transform:uppercase;letter-spacing:.04em}.btn:disabled{opacity:.5;cursor:wait}
+.btn.ghost{background:transparent;color:var(--ink)}.btn.ghost:hover{background:var(--ink);color:var(--paper)}.btn.warn{background:var(--red);border-color:var(--red)}
+.msg{margin:8px 0 0;font:12px var(--mono);min-height:1em}.msg.err{color:var(--red)}
+.sugg{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.sugg button{border:1px dashed var(--blue);background:none;color:var(--blue);padding:5px 8px;font:11px var(--mono);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.section-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:26px 0 8px}.section-h h2{font:600 12px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;margin:0}.section-h p{margin:0;font:11px var(--mono);color:var(--soft)}
+.row{display:grid;grid-template-columns:190px minmax(0,1fr) 290px;gap:18px;padding:14px 0;border-top:1px solid var(--line)}.row>div{min-width:0}.row:first-child{border-top:1px solid var(--ink)}
+.row.urgent{background:linear-gradient(90deg,color-mix(in srgb,var(--red) 7%,transparent),transparent 60%)}
+.st{display:flex;align-items:center;gap:7px;font-weight:600;font-size:14px}.dot{width:11px;height:11px;border-radius:50%;flex:none;background:var(--grey)}
+.s-active_listing{background:var(--red)}.s-recall_message{background:var(--green)}.s-not_purchasable{background:var(--blue)}.s-removed{background:var(--blue);border-radius:0;transform:rotate(45deg) scale(.85)}.s-unverified{background:var(--amber)}
+.since{font:11px var(--mono);color:var(--soft);margin-top:3px}
+.sla{display:inline-block;margin-top:7px;padding:2px 6px;font:500 10px var(--mono);text-transform:uppercase;letter-spacing:.04em;border:1px solid currentColor}.sla-breached,.sla-verify_lot{color:var(--red)}.sla-met,.sla-lot_confirmed{color:var(--green)}.sla-open,.sla-indeterminate,.sla-unclassified,.sla-not_measurable{color:var(--soft)}
+.pub{font-weight:600}.pub small{font:10px var(--mono);color:var(--soft);text-transform:uppercase;letter-spacing:.05em;margin-left:6px}
+.url{display:block;font:11px var(--mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:2px 0 6px}
+.ev{margin:0;font-size:14px}.ev q{quotes:"\201C" "\201D"}.meta{font:11px var(--mono);color:var(--soft);margin-top:5px}
+.ms{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font:11px/1.3 var(--mono)}.ms span{color:var(--soft)}.ms b{color:var(--ink);font-weight:500}
+.acts{display:flex;flex-direction:column;gap:6px;align-items:stretch}.acts .btn{padding:8px 10px}
+.trail{font:11px/1.35 var(--mono);color:var(--soft);margin-top:4px}
+details.hist{margin-top:8px;font:11px var(--mono)}details.hist summary{cursor:pointer;color:var(--soft)}details.hist ol{margin:6px 0 0;padding-left:18px}details.hist li{margin:2px 0}
+.chart{border-top:1px solid var(--ink);padding-top:10px}
+.crow{display:grid;grid-template-columns:200px minmax(0,1fr);gap:12px;align-items:center;margin:7px 0}.cname{font:11px var(--mono);color:var(--soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.track{position:relative;height:16px;background:repeating-linear-gradient(135deg,transparent 0 4px,color-mix(in srgb,var(--ink) 10%,transparent) 4px 5px)}
+.seg{position:absolute;top:0;bottom:0}.seg.active_listing{background:var(--red)}.seg.recall_message{background:var(--green)}.seg.not_purchasable,.seg.removed{background:var(--blue)}.seg.unverified{background:var(--amber)}
+.brk{position:absolute;top:-3px;bottom:-3px;width:3%;background:var(--paper);border-left:1px solid var(--ink);border-right:1px solid var(--ink);transform:skewX(-20deg)}
+.slaline{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink)}
+.axis{display:grid;grid-template-columns:200px minmax(0,1fr);gap:12px;font:10px var(--mono);color:var(--soft)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font:11px var(--mono);color:var(--soft)}.legend i{display:inline-block;width:12px;height:10px;margin-right:5px;vertical-align:-1px}
+.empty{padding:20px;border:1px dashed var(--line);color:var(--soft);font-size:14px}
+.method{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin:34px 0 0;padding:14px 0 30px;border-top:1px solid var(--ink);font-size:13px;color:var(--soft)}.method h3{font:600 11px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--ink);margin:0 0 6px}.method p{margin:0 0 8px}.method code{font:11px var(--mono)}
+.hidden{display:none!important}
+.join{display:flex;flex-wrap:wrap;gap:28px;margin:8px 0 6px}.join>div{flex:1;min-width:220px}.join .step{font:500 11px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--blue);margin:0 0 8px}
+.qr{width:220px;height:220px;background:#fff;padding:10px;border:1px solid var(--line)}.qr canvas,.qr img,.qr svg{width:100%;height:100%;image-rendering:pixelated}
+.join .big{font:15px/1.35 var(--sans);margin:8px 0 0}.join .big b{font:600 20px/1.2 var(--mono);word-break:break-all;color:var(--ink)}
+#join-btn{padding:6px 10px}
+.photos{display:flex;gap:10px;margin-top:10px}.photos figure,.compare figure{margin:0;text-align:center}.photos img{height:110px;border:1px solid var(--line);background:#fff;padding:4px}
+figcaption{font:10px var(--mono);color:var(--soft);margin-top:3px}.compare{display:flex;gap:16px;margin-top:10px}.compare img{height:150px;max-width:220px;object-fit:contain;border:1px solid var(--line);background:#fff;padding:4px}
+.idchip{display:inline-block;margin-top:6px;padding:2px 6px;font:10px/1.35 var(--mono);border:1px solid var(--line);color:var(--soft)}.id-gtin,.id-exact_name,.id-confirmed{border-color:var(--green);color:var(--green)}.id-partial_name,.id-none{border-color:var(--amber);color:var(--amber)}
+.origin{font:10px/1.35 var(--mono);color:var(--soft);margin-top:4px}.linkbtn{border:0;background:none;padding:0;color:var(--blue);font:inherit;text-decoration:underline}
+.r-draft_prepared{border-color:var(--amber);color:var(--amber)}
+table.rcpt{border-collapse:collapse;width:100%;font-size:12.5px}table.rcpt th{text-align:left;vertical-align:top;font:10px var(--mono);text-transform:uppercase;color:var(--soft);padding:6px 10px 6px 0;width:150px}table.rcpt td{padding:6px 0;border-top:1px solid var(--line);word-break:break-word}.rcpt code{font:10px var(--mono)}.shot{max-width:100%;max-height:260px;border:1px solid var(--line)}
+.review{display:inline-block;align-self:flex-start;padding:2px 7px;font:500 10px var(--mono);text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--soft);color:var(--soft)}.r-waiting_on_owner{border-color:var(--blue);color:var(--blue)}.r-resolved{border-color:var(--green);color:var(--green)}.r-reopened{border-color:var(--red);color:var(--red)}
+.next{margin:2px 0 4px;font-size:13px;line-height:1.3}
+.minor{display:flex;flex-wrap:wrap;gap:4px 12px}.minor button{border:0;background:none;padding:2px 0;color:var(--blue);font:11px var(--mono);text-decoration:underline;text-underline-offset:3px}
+.flash{margin:2px 0 0;padding:6px 8px;background:var(--card);border-left:3px solid var(--blue);font:11px/1.35 var(--mono)}
+ol.trail{margin:4px 0 0;padding-left:16px}ol.trail li{margin:3px 0}ol.trail q{color:var(--ink)}
+dialog{width:min(760px,calc(100vw - 32px));max-height:calc(100vh - 40px);overflow:auto;border:2px solid var(--ink);background:var(--paper);color:var(--ink);padding:18px 20px}dialog::backdrop{background:rgba(27,33,29,.45)}
+dialog h2{font:500 22px/1.1 var(--serif);margin:0 0 8px}dialog label{display:block;margin:10px 0 0;font:11px var(--mono);color:var(--soft);text-transform:uppercase;letter-spacing:.04em}
+dialog input,dialog textarea,dialog select{display:block;width:100%;margin-top:4px;padding:8px;border:1px solid var(--ink);background:var(--card);font:13px/1.4 var(--sans);text-transform:none;letter-spacing:0;color:var(--ink)}
+dialog label.inline input{display:inline-block;width:auto;margin:0 6px}dialog .help{font-size:13px;color:var(--soft);margin:0 0 6px}
+dialog fieldset{border:0;padding:0;margin:10px 0 0}dialog legend{font:11px var(--mono);color:var(--soft);text-transform:uppercase}.opt{display:flex!important;gap:8px;align-items:flex-start;text-transform:none!important;letter-spacing:0!important;font:14px/1.3 var(--sans)!important;color:var(--ink)!important;margin:6px 0 0!important}.opt input{width:auto;margin:2px 0 0;display:inline}
+.dlg-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}#dlg-cancel{margin-top:8px}
+@media (max-width:860px){.case,.method{grid-template-columns:1fr}.row{grid-template-columns:minmax(0,1fr)}.acts{flex-direction:column}.addform{grid-template-columns:1fr}.crow,.axis{grid-template-columns:110px minmax(0,1fr)}.wrap{padding:0 16px}.tiles{grid-template-columns:repeat(3,1fr)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.hero{padding:26px 0 14px}.hero h1{font:500 clamp(28px,3.6vw,46px)/1.04 var(--serif);letter-spacing:-.035em;margin:0 0 10px;max-width:22ch}.hero .sub{margin:0;font-size:17px;line-height:1.4;max-width:62ch;color:var(--soft)}.hero .sub b{color:var(--ink);font-weight:600}
+.lead{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.25fr) 240px;border:2px solid var(--ink);background:var(--card);margin:6px 0 0}
+.lead.urgent{box-shadow:inset 6px 0 0 var(--red)}
+.lc{padding:16px 18px;border-left:1px solid var(--line);min-width:0}.lc:first-child{border-left:0}
+.lc h3{margin:0 0 10px;font:500 10px/1.2 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--blue)}
+.lt{margin:0 0 6px;font:500 17px/1.2 var(--serif);letter-spacing:-.02em}.lm{margin:6px 0 0;font:11px/1.45 var(--mono);color:var(--soft)}.lm b{color:var(--ink);font-weight:500}
+.lthumb{float:right;width:58px;height:58px;object-fit:contain;background:#fff;border:1px solid var(--line);padding:2px;margin:0 0 6px 8px}
+.match{display:inline-block;margin:0;padding:4px 8px;font:600 15px/1.2 var(--sans);border:2px solid var(--soft);color:var(--soft)}.match.id-gtin,.match.id-exact_name,.match.id-confirmed{border-color:var(--green);color:var(--green)}.match.id-partial_name,.match.id-none{border-color:var(--amber);color:var(--amber)}
+.lead blockquote{margin:8px 0 0;padding:8px 10px;border-left:3px solid var(--ink);background:var(--paper);font:15px/1.35 var(--sans)}
+.lead .acts{gap:8px}.hero-btn{padding:13px 14px;font-size:12px;background:var(--blue);border-color:var(--blue)}.hero-btn:hover{filter:brightness(1.1)}
+.lead .next{font-size:12px;color:var(--soft)}
+details.more{margin:22px 0 0;border-top:1px solid var(--ink)}details.more>summary{cursor:pointer;padding:12px 0;font:500 11px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--ink);list-style:none}details.more>summary::-webkit-details-marker{display:none}details.more>summary::before{content:"+ ";color:var(--blue)}details.more[open]>summary::before{content:"− "}
+details.more>summary small{text-transform:none;letter-spacing:0;color:var(--soft);margin-left:8px}
+.impact{margin:26px 0 30px;padding:14px 16px 16px;border:1px solid var(--ink);background:var(--card)}.impact h2{margin:0 0 2px;font:600 12px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase}.impact>p{margin:4px 0 10px;font-size:13px;color:var(--soft)}
+.imp{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.imp div{border-top:3px solid var(--ink);padding-top:7px}.imp b{display:block;font:600 15px/1.2 var(--sans);margin-bottom:3px}.imp span{display:block;font:11px/1.4 var(--mono);color:var(--soft)}.imp em{display:block;font:500 13px/1.3 var(--sans);font-style:normal;color:var(--blue);margin:2px 0 4px}
+.banner.proof{border-color:var(--blue);color:var(--blue);background:repeating-linear-gradient(135deg,transparent 0 10px,color-mix(in srgb,var(--blue) 6%,transparent) 10px 20px)}
+.proofgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:24px;margin-top:6px}
+.proofpage{border:2px dashed var(--blue);background:var(--card);padding:16px 18px}.proofpage h3,.chainbox h3{margin:0 0 10px;font:500 10px/1.2 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--blue)}
+.pstate{font:500 22px/1.15 var(--serif);margin:4px 0 8px}.proofpage .btn{width:100%;margin-top:8px}
+ol.chain{list-style:none;margin:0;padding:0;counter-reset:c}ol.chain li{counter-increment:c;position:relative;padding:9px 0 9px 40px;border-top:1px solid var(--line)}ol.chain li:first-child{border-top:1px solid var(--ink)}
+ol.chain li::before{content:counter(c);position:absolute;left:0;top:9px;width:26px;height:26px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font:500 12px var(--mono);color:var(--soft)}
+ol.chain li.done::before{content:"✓";background:var(--green);border-color:var(--green);color:#fff}ol.chain li.running::before{border-color:var(--blue);color:var(--blue);animation:pulse 1s infinite alternate}ol.chain li.failed::before{content:"!";background:var(--red);border-color:var(--red);color:#fff}ol.chain li.fallback::before{content:"~";background:var(--amber);border-color:var(--amber);color:#fff}
+ol.chain b{display:block;font:600 14px/1.25 var(--sans)}ol.chain .t{float:right;font:11px var(--mono);color:var(--soft)}ol.chain p{margin:3px 0 0;font:11px/1.45 var(--mono);color:var(--soft);word-break:break-word}
+@keyframes pulse{to{background:color-mix(in srgb,var(--blue) 20%,transparent)}}
+.rhero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin:0 0 12px}.rhero>div{border:1px solid var(--line);background:var(--card);padding:10px 12px;min-width:0}.rhero h3{margin:0 0 5px;font:500 10px/1.2 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--blue)}
+.rhero p{margin:0;font-size:13px;line-height:1.4}.rhero .mono{font:11px/1.45 var(--mono);color:var(--soft);overflow-wrap:anywhere}.rhero .mono b{color:var(--ink);font-weight:500}
+.rhero .quote{font:16px/1.35 var(--sans);border-left:3px solid var(--ink);padding-left:10px;margin:2px 0 6px}.rhero .shotbox{grid-row:span 2}.rhero .shotbox img{width:100%;max-height:330px;object-fit:cover;object-position:top;border:1px solid var(--line)}
+.rhero .now{border-color:var(--ink)}.rhero .now.need{border-color:var(--red);box-shadow:inset 4px 0 0 var(--red)}.ok{color:var(--green)}.bad{color:var(--red)}
+details.full{margin-top:6px}details.full summary{cursor:pointer;font:11px var(--mono);color:var(--blue);padding:4px 0}
+.testflag{margin:0 0 10px;padding:7px 10px;border:1px dashed var(--blue);color:var(--blue);font:12px/1.4 var(--mono)}
+@media (max-width:980px){.lead{grid-template-columns:1fr 1fr}.lc:nth-child(3){border-left:0}.lc{border-top:1px solid var(--line)}.imp{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.lead,.proofgrid,.rhero{grid-template-columns:1fr}.lc{border-left:0}.rhero .shotbox{grid-row:auto}.imp{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<header><div class="brand">Recall <em>Watch</em></div><div class="status" id="status"><i></i>Loading</div></header>
-<main>
-  <section>
-    <p class="eyebrow" id="kicker">Kitchen recall check</p>
-    <h1 class="answer" id="answer" aria-live="polite">…</h1>
-    <div class="summary" id="summary" aria-live="polite"></div>
-    <div class="tasks"><h2 id="task-heading">What to do now</h2><div id="tasks"></div></div>
-  </section>
-  <aside class="side">
-    <h2>Recent recall notices</h2><div id="notices"></div>
-    <details><summary>Check an incoming order</summary><p>Use this before ordering a product. A “hold” means ask the supplier to verify the lot and expiry date.</p><form id="order-form"><input id="order-name" required placeholder="Product name"><input id="order-ean" placeholder="Barcode / EAN (optional)"><button class="primary" type="submit">Check this order</button></form><div class="result" id="order-result" aria-live="polite"></div></details>
-    <details><summary>How does this work?</summary><p id="how"></p></details>
-    <div class="source" id="source"></div>
-  </aside>
-</main>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">Recall <em>Watch</em></div>
+    <a class="powered" href="https://www.context.dev" target="_blank" rel="noreferrer" title="Every page read, monitor and screenshot on this screen comes from Context.dev"><span>powered by</span><img src="/brand/context-dev.svg" alt="Context.dev"></a>
+    <div class="tabs" role="group" aria-label="Mode">
+      <button id="tab-live" aria-pressed="true">Live case</button>
+      <button id="tab-proof" aria-pressed="false">Live proof</button>
+      <button id="tab-demo" aria-pressed="false">Demo replay</button>
+    </div>
+    <label class="who" title="Typed by you and stored with each action. This pilot has no user accounts, so the name is not verified.">Your name (not verified) <input id="who" autocomplete="name" placeholder="your name"></label>
+    <button type="button" class="btn ghost" id="join-btn" title="Show the Wi-Fi network and the address of this screen">Open on your phone</button>
+    <label class="who hidden" id="key-wrap">Operator key <input id="key" type="password" autocomplete="off"></label>
+  </header>
+  <p class="banner" id="banner" role="status">Loading…</p>
+
+  <main id="case-view">
+    <section class="hero" aria-labelledby="headline">
+      <p class="eyebrow" id="hero-eyebrow">Official recall</p>
+      <h1 id="headline">Loading…</h1>
+      <p class="sub" id="hero-sub"></p>
+    </section>
+    <div id="lead" aria-live="polite"></div>
+
+    <details class="more" id="more">
+      <summary>Review queue, other cases, add a page, Afterimage timeline<small id="more-sum"></small></summary>
+      <div class="casebar hidden" id="casebar"><nav class="cases" id="cases" aria-label="Recall cases"></nav>
+        <form id="open-form" class="openform"><input id="open-url" type="url" required placeholder="Open a case: paste a ruokavirasto.fi notice URL" aria-label="Official notice URL"><button class="btn ghost">Open case</button></form>
+        <p class="msg" id="open-msg"></p></div>
+
+      <section class="case" aria-labelledby="title">
+        <div>
+          <p class="eyebrow" id="notice-eyebrow">Official notice</p>
+          <h2 id="title" class="h1like">—</h2>
+          <p class="fi" id="fi"></p>
+          <p class="prov" id="prov"></p>
+          <div class="facts" id="facts"></div>
+          <div class="photos" id="photos"></div>
+        </div>
+        <aside class="verdict" id="verdict" aria-live="polite">
+          <p class="big" id="verdict-text">—</p>
+          <div class="tiles" id="tiles"></div>
+          <p class="clockbasis" id="basis"></p>
+        </aside>
+      </section>
+
+      <div class="section-h"><h2>Every page, most urgent first</h2><p><span id="queue-sum"></span> <a id="report" class="hidden" download>Download the audit trail (CSV)</a></p></div>
+      <div id="rows" aria-live="polite"></div>
+
+      <section class="add" id="add" aria-labelledby="add-title">
+        <h2 id="add-title">Add a monitored public page</h2>
+        <p id="add-hint">Paste a retailer, marketplace or manufacturer product page.</p>
+        <form class="addform" id="add-form">
+          <input id="add-url" type="url" required placeholder="https://www.k-ruoka.fi/kauppa/tuote/…" aria-label="Public page URL">
+          <input id="add-pub" placeholder="Publisher (optional)" aria-label="Publisher">
+          <button class="btn" id="add-btn">Watch this page</button>
+        </form>
+        <p class="msg" id="add-msg"></p>
+        <div class="sugg" id="sugg"></div>
+      </section>
+
+      <div class="section-h"><h2>Afterimage timeline: what each page still showed after the notice</h2><p id="chart-sum"></p></div>
+      <div class="chart" id="chart"></div>
+      <div class="legend"><span><i style="background:var(--red)"></i>appears purchasable</span><span><i style="background:var(--blue)"></i>not available or removed</span><span><i style="background:var(--green)"></i>recall message visible</span><span><i style="background:var(--amber)"></i>could not classify</span><span><i style="background:repeating-linear-gradient(135deg,transparent 0 3px,#bbb 3px 4px)"></i>not yet watched</span><span><i style="background:var(--ink);width:2px"></i>SLA deadline</span></div>
+
+      <section class="method">
+        <div><h3>How the loop works</h3><p id="method-loop"></p></div>
+        <div><h3>What a page state means</h3><p>A page state is what the page visibly said when Context.dev read it. “Appears purchasable” means normal purchase words were on the page. It does not prove that a recalled lot was in stock or sold. The exact moment a page changed is unknown: each lag is an upper bound, with the window in which the change happened. The Finnish notice is authoritative; the English title is a working translation. Names in the audit trail are typed by the operator: this pilot has no user accounts, so they are attribution, not proof of identity.</p><p id="guard"></p></div>
+      </section>
+    </details>
+
+    <section class="impact hidden" id="impact" aria-labelledby="impact-title">
+      <h2 id="impact-title">Pilot impact</h2>
+      <p>What a four-week pilot with one retailer or brand owner measures, and where this prototype stands today.</p>
+      <div class="imp" id="imp"></div>
+    </section>
+  </main>
+
+  <main id="proof-view" class="hidden">
+    <section class="hero" aria-labelledby="proof-h">
+      <p class="eyebrow">Controlled live proof · team-owned test page · not retailer evidence</p>
+      <h1 id="proof-h">We change a public page now. Context.dev has to catch it.</h1>
+      <p class="sub">The page below is a public GitHub gist that the team owns. Its product and EAN are invented. It runs through the same loop as the retailer pages: monitor, fresh scrape, receipt, review queue. It is stored apart from the real cases and never mixed with them.</p>
+    </section>
+    <div class="proofgrid">
+      <article class="proofpage" id="proof-page"></article>
+      <div class="chainbox"><h3 id="chain-h">The chain, step by step</h3><ol class="chain" id="chain"></ol></div>
+    </div>
+    <div class="section-h"><h2>Every read of the test page</h2><p id="proof-sum"></p></div>
+    <div id="proof-trail"></div>
+  </main>
+</div>
+<dialog id="join" aria-labelledby="join-title">
+  <h2 id="join-title">Open this screen on your phone</h2>
+  <div class="join">
+    <div id="join-wifi" class="hidden"><p class="step">1 · Join the Wi-Fi</p><div class="qr" id="qr-wifi"></div>
+      <p class="big">Network <b id="j-ssid"></b></p><p class="big">Password <b id="j-pass"></b></p></div>
+    <div><p class="step" id="join-step2">2 · Open the address</p><div class="qr" id="qr-url"></div><p class="big"><b id="j-url"></b></p></div>
+  </div>
+  <p class="help">This computer must be on the same Wi-Fi as the phones. Anyone on this network can view the screen. Changes ask for the operator key.</p>
+  <button type="button" class="btn ghost" id="join-close">Close</button>
+</dialog>
+<dialog id="dlg" aria-labelledby="dlg-title">
+  <h2 id="dlg-title">—</h2>
+  <form id="f-contact" method="dialog" class="hidden">
+    <p class="help">Recall Watch does not send e-mail. These buttons save a draft in the audit trail and hand the text to your mail app or clipboard. The page waits on the owner only after you confirm that you sent it.</p>
+    <label>To<input id="c-to" placeholder="e-mail address or team, e.g. verkkokauppa@…"></label>
+    <label>Subject<input id="c-subject"></label>
+    <label>Message<textarea id="c-body" rows="12"></textarea></label>
+    <div class="dlg-btns"><button type="button" class="btn" id="c-mail">Open in my mail app</button><button type="button" class="btn ghost" id="c-copy">Copy the text</button></div>
+  </form>
+  <form id="f-resolve" method="dialog" class="hidden">
+    <p class="help">A resolution closes the page in the queue. It re-opens on its own if Context.dev later sees the page change.</p>
+    <fieldset><legend>Outcome</legend><div id="r-outcomes"></div></fieldset>
+    <label id="r-state-wrap" class="hidden">What the page really shows<select id="r-state"></select></label>
+    <label><span id="r-note-label">Note</span><textarea id="r-note" rows="4"></textarea></label>
+    <div class="dlg-btns"><button type="button" class="btn" id="r-save">Resolve</button></div>
+  </form>
+  <form id="f-sent" method="dialog" class="hidden">
+    <p class="help">Record this only after the message has left your mailbox. From then on the page waits on the owner until the reply deadline, and comes back to you earlier if Context.dev sees the page change.</p>
+    <label>Sent to<input id="s-to"></label>
+    <label class="inline">Reply due in <input id="s-due" type="number" min="1" max="168" style="width:70px"> hours</label>
+    <label class="opt"><input type="checkbox" id="s-confirm"> I sent this message myself.</label>
+    <div class="dlg-btns"><button type="button" class="btn" id="s-save">Record as sent</button></div>
+  </form>
+  <form id="f-identity" method="dialog" class="hidden">
+    <p class="help">The page name matches the recalled product only partly, so the page stays out of the SLA until a person decides. Compare the official photo with the photo on the page.</p>
+    <div class="compare" id="i-compare"></div>
+    <p class="msg" id="i-detail"></p>
+    <label>How you decided (required)<textarea id="i-note" rows="3" placeholder="e.g. Same pack, same name and size as the notice photo"></textarea></label>
+    <div class="dlg-btns"><button type="button" class="btn" id="i-same">Same product</button><button type="button" class="btn ghost" id="i-diff">Different product</button></div>
+  </form>
+  <div id="f-receipt" class="hidden"><div id="receipt"></div></div>
+  <form id="f-note" method="dialog" class="hidden">
+    <p class="help">A note goes into the audit trail. It does not change the review state.</p>
+    <label>Note<textarea id="n-note" rows="4"></textarea></label>
+    <div class="dlg-btns"><button type="button" class="btn" id="n-save">Save note</button></div>
+  </form>
+  <p class="msg err" id="dlg-err"></p>
+  <button type="button" class="btn ghost" id="dlg-cancel">Close</button>
+</dialog>
+<script src="/vendor/qrcode-1.4.4.min.js"></script>
 <script>
 (() => {
-  const $=id=>document.getElementById(id),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])),day=t=>new Date(t*1000).toLocaleDateString("en-GB",{day:"numeric",month:"short"});
-  const WORDS=["Clear","Check this product","Quarantine & verify"],CSS=["safe","check","urgent"];let data,who="Kitchen staff";
-  async function load(){try{const r=await fetch("/state",{cache:"no-store"});data=await r.json();render()}catch(_){$("status").className="status stale";$("status").innerHTML="<i></i>Can't reach Recall Watch"}}
-  function taskCard(h,n){const urgent=h.level===2;const instruction=urgent?"Put this product aside, then compare the lot on the pack":"Check whether this is the same product and pack";const lot=n.lot?" (lot "+esc(n.lot)+")":"";const buttons='<div class="actions"><button class="primary" data-n="'+esc(h.notice)+'" data-p="'+esc(h.product)+'" data-a="quarantined">I quarantined it</button><button class="secondary" data-n="'+esc(h.notice)+'" data-p="'+esc(h.product)+'" data-a="not_this_lot">It’s another lot</button></div>';return '<article class="task"><h3><span class="label">'+(urgent?"Do now":"Check")+'</span>'+esc(h.product_name)+'</h3><p>'+instruction+lot+'.<br>'+esc(h.match_basis)+" · "+esc(h.confidence)+" confidence.</p>"+buttons+"</article>"}
-  function render(){
-    const replay=data.status.source==="replay",st=data.status,byId=Object.fromEntries(data.notices.map(n=>[n.id,n]));
-    $("kicker").textContent=data.kitchen+" · "+data.shelf_size+" products checked";$("answer").textContent=WORDS[data.level];$("answer").className="answer "+CSS[data.level];$("summary").textContent=data.answer;
-    $("status").className="status "+(replay?"replay ":"")+(st.stale?"stale":"");$("status").innerHTML="<i></i>"+(st.stale?"Needs a refresh":replay?"Demo replay":"Watching the web now");
-    const open=data.hits.filter(h=>!h.ack);$("task-heading").textContent=open.length?"What to do now":"You’re up to date";$("tasks").innerHTML=open.length?open.slice(0,5).map(h=>taskCard(h,byId[h.notice]||{})).join(""):'<div class="empty">No product on this shelf matches an open recall.</div>';
-    $("notices").innerHTML=data.notices.slice(0,5).map(n=>'<article class="notice"><a href="'+esc(n.url)+'" target="_blank" rel="noopener">'+esc(n.title)+'</a><p>'+esc(n.summary||"Open the source for the full notice.")+'</p><small>'+day(n.published_at)+" · "+(n.official?"Finnish Food Authority":"Other web source")+"</small></article>").join("")||"<p class='small'>No current notices.</p>";
-    $("how").textContent=replay?"This is a fast replay of recorded authority notices for demonstration.":"Context.dev watches the Finnish Food Authority’s recall list and other recall announcements. A barcode match is strongest; product-name matches require a pack and lot check.";$("source").textContent=replay?"Demo data: recorded 2026 authority notices.":"Live data: the Finnish Food Authority list and monitored recall announcements.";
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const store = {get(k){try{return localStorage.getItem(k)||""}catch(_){return ""}}, set(k,v){try{localStorage.setItem(k,v)}catch(_){}}};
+  const MODES = ["live", "proof", "demo"];
+  let mode = MODES.includes(store.get("afterimage-mode")) ? store.get("afterimage-mode") : "live", data = null, busy = false, caseId = "", lastRowsKey = "", lastCasesKey = "", lastSuggKey = "", lastLeadKey = "";
+  $("who").value = store.get("afterimage-reviewer"); $("key").value = store.get("afterimage-key");
+  $("who").addEventListener("change", e => store.set("afterimage-reviewer", e.target.value.trim()));
+  $("key").addEventListener("change", e => store.set("afterimage-key", e.target.value));
+  $("more").open = store.get("rw-more-open") === "1";
+  $("more").addEventListener("toggle", () => store.set("rw-more-open", $("more").open ? "1" : ""));
+
+  const dur = s => { if (s == null) return "—"; s = Math.max(0, s); const d = Math.floor(s/86400), h = Math.floor(s%86400/3600), m = Math.round(s%3600/60);
+    return d ? `${d} d ${h} h` : h ? `${h} h ${String(m).padStart(2,"0")} min` : `${m} min`; };
+  const days = s => { const d = Math.floor(Math.max(0, s)/86400); return d >= 2 ? `${d} days` : dur(s); };
+  const fmt = (t, notice) => { if (t == null) return "—"; if (mode === "demo" && data?.simulated) return "T+" + dur(t - notice);
+    return new Date(t*1000).toLocaleString("en-GB", {timeZone:"Europe/Helsinki", day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"}); };
+  const fmtSec = t => t == null ? "—" : new Date(t*1000).toLocaleString("en-GB", {timeZone:"Europe/Helsinki", day:"numeric", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit", second:"2-digit"}) + " Helsinki";
+  const SLA = {verify_lot:"Check listed lot", lot_confirmed:"Lot confirmed by owner", breached:"SLA breached", met:"SLA met", open:"Within SLA, open", indeterminate:"SLA unclear", unclassified:"Not classified", not_measurable:"Changed before watch", not_observed:"Not read yet", identity_check:"Identity check"};
+  const TRIG = {added:"first read when added", scheduled:"scheduled re-read", monitor_change:"re-read after a Context.dev monitor change", manual:"re-read by a person", proof_fallback:"direct read after the monitor reported no change"};
+  const REVIEW = {open:"Open", draft_prepared:"Draft not confirmed as sent", waiting_on_owner:"Waiting on owner", resolved:"Resolved", reopened:"Re-opened"};
+  const ACTION_TEXT = {draft_prepared:"prepared a draft", identity_confirmed:"confirmed the product identity", owner_contacted:"sent a message to the owner", resolved:"resolved", reopened:"re-opened", note:"note", assigned:"assigned", reviewed:"reviewed", escalated:"pressed the first prototype's escalate button (no message confirmed)", closed:"resolved"};
+  const IDENT = {gtin:"Official GTIN found on the page", exact_name:"Name matches the notice", partial_name:"Name matches only partly", none:"No supported product match", confirmed:"Identity confirmed by a reviewer"};
+  const MATCH = {gtin:"Exact GTIN match", exact_name:"Exact name match", partial_name:"Partial name match: a person must confirm", none:"No product match", confirmed:"Confirmed by a reviewer"};
+
+  function headers() { const h = {"Content-Type":"application/json"}; if ($("key").value) h["X-Afterimage-Key"] = $("key").value; return h; }
+  async function post(url, body) { const r = await fetch(url, {method:"POST", headers:headers(), body:JSON.stringify(body||{})});
+    const d = await r.json().catch(() => ({})); if (!r.ok) throw Error(d.detail || "The request failed."); return d; }
+  const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+
+  function render() {
+    for (const m of MODES) $("tab-" + m).setAttribute("aria-pressed", m === mode);
+    $("case-view").classList.toggle("hidden", mode === "proof"); $("proof-view").classList.toggle("hidden", mode !== "proof");
+    $("key-wrap").classList.toggle("hidden", !(mode !== "demo" && data.write_requires_key));
+    if (mode === "proof") return renderProof();
+    renderCase();
   }
-  $("tasks").addEventListener("click",async e=>{const b=e.target.closest("button[data-n]");if(!b)return;b.disabled=true;b.textContent="Saved";try{const r=await fetch("/ack",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({notice:b.dataset.n,product:b.dataset.p,action:b.dataset.a,who})});if(!r.ok)throw Error();await load()}catch(_){b.disabled=false;b.textContent="Try again"}});
-  $("order-form").addEventListener("submit",async e=>{e.preventDefault();const out=$("order-result"),name=$("order-name").value.trim(),ean=$("order-ean").value.trim();out.textContent="Checking…";try{const r=await fetch("/orders/check",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({items:[{name,ean}]})}),d=await r.json(),item=d.decisions?.[0];if(!item)throw Error();const words={allow:"Okay to order",review:"Check this product",hold_and_verify_lot:"Hold and verify the lot"};out.className="result "+item.decision;out.textContent=words[item.decision]||item.decision}catch(_){out.className="result";out.textContent="Could not check this right now."}});
-  load();setInterval(load,5000);
+
+  function renderCase() {
+    const live = mode === "live", v = live ? data.view : data;
+    $("add").classList.toggle("hidden", !live || !v);
+    $("casebar").classList.toggle("hidden", !live);
+    $("impact").classList.toggle("hidden", !live);
+    const casesKey = live ? JSON.stringify([data.cases, data.view?.case.id]) : "";
+    if (live && casesKey !== lastCasesKey && (lastCasesKey = casesKey)) $("cases").innerHTML = data.cases.map(k => `<button data-case="${esc(k.id)}" aria-current="${k.id === data.view?.case.id}">${esc(k.title_en || k.title_fi)}<small>${esc(k.notice_date)} · ${plural(k.pages, "page", "pages")} watched · opened by ${esc(k.opened_by)}</small></button>`).join("");
+    const banner = $("banner");
+    if (live) {
+      const p = data.pilot;
+      banner.className = "banner live";
+      banner.textContent = p.configured
+        ? `Live · every row is a Context.dev read of a real public page · page monitors every ${p.monitor_interval_minutes} min · last check ${p.last_poll ? fmt(p.last_poll) : "pending"}${p.last_error ? " · last problem: " + p.last_error : ""}`
+        : "Stored evidence, read-only · this server has no Context.dev key, so it cannot read pages now. Every row is a stored Context.dev read of a real page.";
+    } else {
+      banner.className = "banner sim";
+      banner.textContent = `Demo replay · simulated pages on a simulated clock (${dur(data.sim_elapsed_s)} of ${dur(data.sim_total_s)}) · never mixed with the live case · restarts in ${data.restarts_in_s} s`;
+    }
+    if (live) impact(data.impact, data.pilot);
+    if (!v) { $("headline").textContent = "No live case yet"; $("hero-sub").textContent = data.pilot.configured ? "The pilot case opens on the first poll." : "Set CONTEXT_DEV_API_KEY to open the pilot case.";
+      $("lead").innerHTML = ""; $("rows").innerHTML = '<p class="empty">No observations stored.</p>'; $("chart").innerHTML = ""; return; }
+    const c = v.case, s = v.summary, t = v.targets[0];
+    // The first screen: one sentence, then the strongest row.
+    $("hero-eyebrow").textContent = `Official recall · ${c.publisher} · ${c.notice_date}${data.simulated ? " · simulated" : ""}`;
+    $("headline").textContent = !s.targets ? "No public page is watched for this recall yet."
+      : s.needs_action ? `${plural(s.needs_action, "public page still needs", "public pages still need")} review after this official recall.`
+      : "Every watched public page has caught up with this official recall.";
+    const pageLine = t && t.state === "active_listing"
+      ? `<b>${esc(t.publisher)}</b> still presents ${t.identity === "gtin" ? "the exact GTIN" : "the product"} as a normal product page, <b>${days((t.observed_at ?? v.now) - c.notice_at)}</b> after the notice.`
+      : t ? `<b>${esc(t.publisher)}</b>: ${esc((t.state_label || "not read").toLowerCase())}, last read ${days((t.observed_at ?? v.now) - c.notice_at)} after the notice.` : "";
+    $("hero-sub").innerHTML = `${esc((c.title_en || c.title_fi).replace(/\.$/, ""))}. ${pageLine}`;
+    const leadKey = mode + JSON.stringify([t, c.id, flash[t?.id], data.monitors && t ? data.monitors[t.monitor_id] : null]);
+    if (leadKey !== lastLeadKey) { lastLeadKey = leadKey; $("lead").innerHTML = t ? lead(t, c, v) : '<p class="empty">Open “Review queue” below to add a page.</p>'; }
+    $("more-sum").textContent = `${plural(s.targets, "page", "pages")} in this case · ${live ? plural(data.cases.length, "case", "cases") + " in all" : "simulated case"}`;
+
+    $("notice-eyebrow").textContent = `Official notice · ${c.publisher} · ${c.notice_date}`;
+    $("title").textContent = c.title_en || c.title_fi;
+    $("fi").innerHTML = c.title_en ? `<b>Finnish original</b><span lang="fi">${esc(c.title_fi)}</span>` : "";
+    $("prov").innerHTML = `<b>Translation</b>${esc(c.translation_provenance)} <a href="${esc(c.notice_url)}" target="_blank" rel="noreferrer">Open the official notice ↗</a>`;
+    $("photos").innerHTML = (c.images || []).map(i => `<figure><a href="${esc(i.url)}" target="_blank" rel="noreferrer"><img src="${esc(photoSrc(i))}" alt="${esc(i.alt || "Official product photo")}" loading="lazy"></a><figcaption>Official photo from the notice${i.local ? " · stored copy" : ""}</figcaption></figure>`).join("");
+    $("facts").innerHTML = `<span>Products<b>${esc(c.products.join(" · ") || "—")}</b></span><span>GTIN<b>${esc(c.gtins.join(", ") || "not stated in the notice")}</b></span>${c.lot ? `<span>Lots<b>${esc(c.lot)}</b></span>` : ""}`;
+    const since = dur(v.now - c.notice_at);
+    $("verdict").classList.toggle("ok", !s.needs_action);
+    $("verdict-text").innerHTML = s.appears_purchasable
+      ? `${s.appears_purchasable} of ${plural(s.targets, "page", "pages")} still appear${s.appears_purchasable===1?"s":""} purchasable <b>${since}</b> after the notice.` + (s.lot_limited ? ` <small style="display:block;font:13px/1.35 var(--sans);margin-top:6px;color:var(--soft)">The recall names specific lots, so a listing can be newer stock. Ask the owner which lot the page sells.</small>` : "")
+      : s.needs_action ? `${plural(s.needs_action, "page needs", "pages need")} a human check.`
+      : s.targets ? `Every watched page has closed its purchase path or been handled.` : "No pages are watched yet.";
+    $("tiles").innerHTML = [[s.needs_action,"need action"],[`${s.purchase_closed}/${s.targets}`,"purchase closed"],[`${s.recall_visible}/${s.targets}`,"recall shown"],
+      s.lot_limited ? [s.verify_lot, "need a lot check"] : [s.sla_breached,`breached ${c.sla_hours} h SLA`],[s.sla_met,"met SLA"],[s.median_measured_lag_s==null?"—":dur(s.median_measured_lag_s),`median measured lag (n=${s.measured_lags})`]]
+      .map(([n,l]) => `<div class="tile"><b>${esc(n)}</b><span>${esc(l)}</span></div>`).join("");
+    $("basis").textContent = `SLA clock: ${c.notice_at_basis}. Deadline ${fmt(v.sla_due, c.notice_at)}.`;
+    $("report").classList.toggle("hidden", !live); if (live) $("report").href = `/afterimage/live/cases/${encodeURIComponent(c.id)}/report.csv`;
+    $("queue-sum").textContent = `${plural(s.targets, "page", "pages")} · ${s.needs_action} need action`;
+    // Rebuild the rows only when they change, so a polling refresh never steals focus or a click.
+    const rowsKey = mode + JSON.stringify(v.targets) + JSON.stringify(flash);
+    if (rowsKey !== lastRowsKey) { lastRowsKey = rowsKey;
+      $("rows").innerHTML = v.targets.length ? v.targets.map(t => row(t, c)).join("") : '<p class="empty">No pages watched yet. Add one below.</p>'; }
+    chart(v);
+    if (live) {
+      const p = data.pilot;
+      $("add-hint").textContent = `Approved domains for this pilot: ${p.allowed_domains.join(", ")}. Each page gets one structured scrape now and a Context.dev monitor from then on. ${s.targets}/${p.max_targets_per_case} pages used.`;
+      const suggKey = JSON.stringify(data.suggestions);
+      if (suggKey !== lastSuggKey && (lastSuggKey = suggKey) !== null) $("sugg").innerHTML = data.suggestions.length ? '<span class="meta">Found by Context.dev search on approved domains, ranked by how closely the title names a recalled product. Check before watching:</span>' + data.suggestions.map(x => `<button data-url="${esc(x.url)}" title="${esc(x.url)}">+ ${esc(x.title || x.url)}</button>`).join("") : '<span class="meta">Context.dev search found no page on the approved domains whose title names a recalled product closely. Paste one by hand.</span>';
+      $("guard").textContent = `Guard rails: approved domains only, at most ${p.max_targets_per_case} pages per case, one manual re-read per page every 5 min, ${p.budget_left_this_hour} scrapes left in this hour's budget${data.write_requires_key ? ", operator key required for changes" : ""}.`;
+      $("method-loop").textContent = "A Context.dev page monitor watches each approved page every 10 minutes. When it reports a change, the server re-reads the page with a structured scrape, classifies its visible state, and appends a timestamped observation. Quiet pages are re-read on a slow schedule. A page that is listed again after closing re-opens review. Each read is fresh (never Context.dev's cache) and keeps a receipt: the Context.dev request id, the page text with its SHA-256, a screenshot, a word-for-word excerpt checked against that text, and a product identity computed from the GTIN or the product name, not by the model. Cases, observations and reviewer actions are stored in SQLite and survive a restart.";
+    } else {
+      $("guard").textContent = "";
+      $("method-loop").textContent = "The demo replays a case on a simulated clock so the state changes are visible within a minute. In the live case, the same view is built from stored Context.dev observations of real pages.";
+    }
+  }
+
+  function lead(t, c, v) {
+    const live = mode === "live", p = primary(t), img = (c.images || [])[0];
+    const link = t.url ? `<a class="url" href="${esc(t.url)}" target="_blank" rel="noreferrer">${esc(t.url.replace(/^https:\/\/(www\.)?/, ""))}</a>` : `<span class="url">simulated page, no URL</span>`;
+    return `<article class="lead ${t.needs_action ? "urgent" : ""}">
+      <div class="lc"><h3>Official recall</h3>${img ? `<img class="lthumb" src="${esc(photoSrc(img))}" alt="Official product photo">` : ""}
+        <p class="lt">${esc(c.title_en || c.title_fi)}</p>
+        <p class="lm">${esc(c.publisher)} · <b>${esc(c.notice_date)}</b><br>${c.gtins.length ? `GTIN <b>${esc(c.gtins.join(", "))}</b>` : "No GTIN in the notice"}${c.lot ? `<br>Lots: ${esc(c.lot)}` : ""}</p>
+        ${live ? `<p class="lm"><a href="${esc(c.notice_url)}" target="_blank" rel="noreferrer">Official notice ↗</a></p>` : ""}</div>
+      <div class="lc"><h3>Product match</h3>${t.identity ? `<p class="match id-${esc(t.identity)}">${esc(MATCH[t.identity] || t.identity)}</p><p class="lm">${esc(t.identity_detail)}</p>` : `<p class="match">${live ? "Not checked yet" : "Simulated page"}</p>`}
+        <p class="pub" style="margin-top:12px">${esc(t.publisher)}<small>${esc(t.page_type)}</small></p>${link}</div>
+      <div class="lc"><h3>Public page now</h3><div class="st"><i class="dot s-${esc(t.state)}"></i>${esc(t.state_label || "Not read")}</div>
+        <blockquote>${esc(t.evidence || "")}</blockquote>
+        ${t.excerpt ? `<p class="lm">Verbatim: <q lang="fi">${esc(t.excerpt)}</q> ${t.excerpt_verified ? '<span class="ok">✓ found word for word in the stored page text</span>' : ""}</p>` : ""}
+        <p class="lm">Read ${fmt(t.observed_at, c.notice_at)}, ${days(t.observed_at - c.notice_at)} after the notice · ${esc(TRIG[t.trigger] || t.trigger)}.</p></div>
+      <div class="lc acts">
+        ${live && t.latest_observation_id ? `<button class="btn hero-btn" data-receipt="${t.latest_observation_id}">Evidence receipt</button>` : ""}
+        ${live ? `<button class="btn ghost" data-check="${esc(t.id)}" title="One fresh Context.dev structured read of the page now (about 6 credits), stored as a new observation.">Check page now</button>` : ""}
+        ${p ? `<button class="btn ${t.needs_action ? "warn" : ""}" data-dlg="${p[0]}" data-id="${esc(t.id)}">${esc(p[1])}</button>` : ""}
+        <span class="review r-${esc(t.review)}">${esc(REVIEW[t.review] || t.review)}</span>
+        <p class="next">${esc(t.next_step)}</p>
+        ${flash[t.id] ? `<p class="flash">${flash[t.id]}</p>` : ""}</div>
+    </article>`;
+  }
+
+  function impact(i, p) {
+    if (!i) return;
+    const item = (title, target, today) => `<div><b>${title}</b><em>${target}</em><span>Today: ${today}</span></div>`;
+    $("imp").innerHTML = [
+      item("Approved domains", "10 retailer and manufacturer domains", `${i.domains} approved, ${plural(i.pages, "page", "pages")} watched`),
+      item("Notices opened", "a case within 10 minutes of the notice", `the list monitor runs every ${i.list_monitor_minutes} min; ${plural(i.auto_opened, "case", "cases")} opened by it`),
+      item("Propagation SLA", `purchase path closed within ${i.sla_hours} h`, "measured from the notice on every watched page"),
+      item("Time to correction", "median, per page owner", i.median_lag_s == null ? "no correction observed yet" : `${dur(i.median_lag_s)} (n=${i.measured_lags})`),
+      item("Human corrections", "every classifier label a reviewer corrects", `${i.corrections} of ${plural(i.resolutions, "resolution", "resolutions")}`),
+    ].join("");
+  }
+
+  function row(t, c) {
+    const m = t.milestones || {}, pc = m.purchase_closed, rv = m.recall_visible;
+    const lag = x => !x ? "—" : x.seen_before_watch ? `already at first read, ≤ ${dur(x.lag_s)}` : `≤ ${dur(x.lag_s)} <span>(changed after ${fmt(x.changed_after, c.notice_at)})</span>`;
+    const link = t.url ? `<a class="url" href="${esc(t.url)}" target="_blank" rel="noreferrer">${esc(t.url.replace(/^https:\/\/(www\.)?/, ""))}</a>` : `<span class="url">simulated page, no URL</span>`;
+    return `<article class="row ${t.needs_action ? "urgent" : ""}">
+      <div><div class="st"><i class="dot s-${esc(t.state)}"></i>${esc(t.state_label || "Not read")}</div>
+        <div class="since">since ${fmt(t.state_since, c.notice_at)}</div>
+        <span class="sla sla-${esc(t.sla)}">${esc(SLA[t.sla] || t.sla)}</span>${t.reopened ? '<span class="sla sla-breached">Re-opened</span>' : ""}</div>
+      <div><div class="pub">${esc(t.publisher)}<small>${esc(t.page_type)}</small></div>${link}
+        <p class="ev"><q>${esc(t.evidence)}</q></p>
+        <div class="meta">${esc(TRIG[t.trigger] || t.trigger)} · ${fmt(t.observed_at, c.notice_at)} · ${plural(t.observations, "observation", "observations")} · ${monitorText(t)}</div>
+        ${t.identity ? `<div class="idchip id-${esc(t.identity)}" title="${esc(t.identity_detail)}">${esc(IDENT[t.identity] || t.identity)}${t.identity_detail ? ` · ${esc(t.identity_detail)}` : ""}</div>` : (mode === "live" ? '<div class="idchip id-none">Identity not checked yet: use “Check page now”</div>' : "")}
+        ${t.origin_detail || t.origin ? `<div class="origin">How this page got here: ${esc(t.origin_detail || t.origin)} · added by ${esc(t.added_by)}</div>` : (mode === "live" ? '<div class="origin">How this page got here: not recorded (added before provenance tracking)</div>' : "")}
+        <div class="ms"><span>First seen purchasable <b>${m.first_stale ? fmt(m.first_stale, c.notice_at) : "never"}</b></span><span>Purchase closed <b>${lag(pc)}</b></span><span>Recall visible <b>${lag(rv)}</b></span></div>
+        ${history(t, c, "/afterimage/live")}</div>
+      <div class="acts">${actions(t, c)}      </div></article>`;
+  }
+  function history(t, c, base) {
+    return `<details class="hist"><summary>Observation trail, newest first</summary><ol>${(t.history||[]).slice().reverse().map(h => `<li>${fmt(h.at, c.notice_at)} · ${esc(h.state.replace("_"," "))} · ${esc(TRIG[h.trigger]||h.trigger)}${mode === "demo" || !h.id ? "" : h.has_receipt ? ` · <button class="linkbtn" data-receipt="${h.id}" data-base="${base}">receipt</button>` : " · no receipt: read before receipts were added"}</li>`).join("")}</ol></details>`;
+  }
+
+  function monitorText(t) {
+    if (t.monitor_id === "simulated") return "simulated monitor";
+    if (!t.monitor_id) return "no monitor, scheduled re-reads only";
+    const m = (data.monitors || {})[t.monitor_id];
+    return m ? `Context.dev monitor ${esc(m.status)} · last run ${m.last_run_at ? fmt(Date.parse(m.last_run_at)/1000) : "—"} · next ${m.next_run_at ? fmt(Date.parse(m.next_run_at)/1000) : "—"}` : "Context.dev monitor (status pending)";
+  }
+  // A stored copy is shown when we kept one; the original address is only a fallback.
+  const photoSrc = i => i.local ? `/afterimage/live/images/${encodeURIComponent(i.local)}` : i.url;
+  const pagePhoto = p => p && (p.image_local ? `/afterimage/live/images/${encodeURIComponent(p.image_local)}` : p.image);
+  const flash = {};   // target id to the result of the last "Check page now"
+  function primary(t) {
+    const r = t.review, st = t.state, step = t.next_step || "";
+    if (r === "resolved") return null;
+    if (t.identity_pending) return ["identity", "Confirm product identity…"];
+    if (r === "draft_prepared") return ["sent", "I sent it…"];
+    if (r === "waiting_on_owner") return t.needs_action && /deadline/.test(step) ? ["contact", "Contact again…"] : ["resolve", t.needs_action ? "Check change and resolve…" : "Record the result…"];
+    if (st === "active_listing") return ["contact", "Contact owner…"];
+    if (st === "unverified") return ["resolve", "Record what the page shows…"];
+    return ["resolve", "Resolve…"];
+  }
+  function actions(t, c) {
+    const p = primary(t), live = mode === "live";
+    const trail = (t.actions || []).slice(-3).reverse().map(a => `<li><b>${esc(ACTION_TEXT[a.action] || a.action)}</b> by ${esc(a.who)} · ${fmt(a.at, c.notice_at)}${a.recipient ? ` · to ${esc(a.recipient)}` : ""}${a.outcome ? ` · ${esc((data.outcomes[a.outcome]||a.outcome))}` : ""}${a.note ? `<br><q>${esc(a.note)}</q>` : ""}</li>`).join("");
+    return `<span class="review r-${esc(t.review)}">${esc(REVIEW[t.review] || t.review)}${t.contact?.due_at && t.review === "waiting_on_owner" ? ` · reply due ${fmt(t.contact.due_at, c.notice_at)}` : ""}</span>
+      <p class="next">${esc(t.next_step)}</p>
+      ${p ? `<button class="btn ${t.needs_action ? "warn" : ""}" data-dlg="${p[0]}" data-id="${esc(t.id)}">${esc(p[1])}</button>` : ""}
+      <div class="minor">
+        ${live ? `<button data-check="${esc(t.id)}" title="Runs one Context.dev structured read of the page now (about 6 credits) and stores it as an observation. The page monitor also checks it every 10 minutes.">Check page now</button>` : ""}
+        ${t.review !== "resolved" && p && p[0] !== "resolve" ? `<button data-dlg="resolve" data-id="${esc(t.id)}">Resolve…</button>` : ""}
+        <button data-dlg="note" data-id="${esc(t.id)}">Add note…</button>
+        ${live && t.latest_observation_id ? `<button data-receipt="${t.latest_observation_id}">Evidence receipt</button>` : ""}
+        ${t.review === "resolved" ? `<button data-reopen="${esc(t.id)}">Re-open</button>` : ""}
+      </div>
+      ${flash[t.id] ? `<p class="flash">${flash[t.id]}</p>` : ""}
+      ${trail ? `<ol class="trail">${trail}</ol>` : '<p class="trail">No reviewer action yet.</p>'}`;
+  }
+
+  // The controlled live proof ---------------------------------------------------
+  const STEPS = [["page","The team changes the test page"],["monitor","Context.dev's page monitor detects the change"],["scrape","Fresh structured scrape"],["receipt","New evidence receipt"],["queue","The review queue updates"]];
+  let lastProofKey = "";
+  function renderProof() {
+    const d = data, banner = $("banner"), row = d.row, page = d.page || {}, run = d.run;
+    banner.className = "banner proof";
+    banner.textContent = "Live proof · a public test page that the team owns · not retailer evidence · stored apart from the real cases";
+    const key = JSON.stringify([d.row, d.run, d.running, d.page, d.monitor]);
+    if (key === lastProofKey) return; lastProofKey = key;
+    if (!d.set_up) {
+      $("proof-page").innerHTML = `<h3>Test page</h3><p>Not set up on this machine. Run this once, from <code>recall-watch/</code>:</p><pre>uv run python -m recall.proof setup</pre>`;
+      $("chain").innerHTML = STEPS.map(([k, l]) => `<li><b>${l}</b></li>`).join(""); $("proof-trail").innerHTML = ""; return;
+    }
+    const next = d.next_state, nextLabel = next === "recall" ? "withdrawn with a recall notice" : "back on sale";
+    $("proof-page").innerHTML = `<h3>Test page · public GitHub gist</h3>
+      <a class="url" href="${esc(page.url)}" target="_blank" rel="noreferrer">${esc(page.url.replace(/^https:\/\//, ""))}</a>
+      <p class="lm">The page now says the product is <b>${esc(d.states[page.state] || page.state)}</b> (edited ${fmt(page.changed_at)}).</p>
+      ${row ? `<p class="pstate"><i class="dot s-${esc(row.state)}" style="display:inline-block;margin-right:8px"></i>${esc(row.state_label)}</p>
+        <p class="lm">Last read ${fmt(row.observed_at)} · ${esc(TRIG[row.trigger] || row.trigger)}<br>Review: <b>${esc(row.reopened ? "re-opened" : REVIEW[row.review] || row.review)}</b> · ${esc(row.next_step)}</p>` : '<p class="lm">Waiting for the first read.</p>'}
+      <button class="btn hero-btn" id="proof-go" ${d.running ? "disabled" : ""}>${d.running ? "Running…" : `Change the page now: ${nextLabel}`}</button>
+      ${row && row.review !== "resolved" && row.state !== "active_listing" && !d.running ? `<button class="btn ghost" id="proof-resolve">Resolve as page updated</button>` : ""}
+      ${row?.latest_observation_id ? `<button class="btn ghost" data-receipt="${row.latest_observation_id}" data-base="/proof">Evidence receipt of the last read</button>` : ""}
+      <p class="lm">${d.monitor ? `Context.dev monitor ${esc(d.monitor.status)} · last run ${d.monitor.last_run_at ? fmt(Date.parse(d.monitor.last_run_at)/1000) : "—"}` : ""}</p>`;
+    const steps = Object.fromEntries((run?.steps || []).map(s => [s.key, s]));
+    $("chain-h").textContent = run ? `The chain · started ${fmt(run.started_at)} by ${run.who}${run.finished_at ? ` · ${Math.round(run.finished_at - run.started_at)} s end to end` : ""}` : "The chain, step by step";
+    $("chain").innerHTML = STEPS.map(([k, l]) => { const s = steps[k];
+      return `<li class="${s ? esc(s.status) : ""}"><b>${esc(s ? s.label : l)}</b>${s ? `<span class="t">+${(s.at - run.started_at).toFixed(1)} s</span><p>${esc(s.detail)}${s.detail_call ? `<br>${esc(s.detail_call)}` : ""}${s.observation_id && k === "receipt" ? ` · <button class="linkbtn" data-receipt="${s.observation_id}" data-base="/proof">open the receipt</button>` : ""}</p>` : ""}</li>`; }).join("")
+      + (steps.error ? `<li class="failed"><b>${esc(steps.error.label)}</b><p>${esc(steps.error.detail)}</p></li>` : "");
+    $("proof-sum").textContent = row ? `${plural(row.observations, "read", "reads")} · each with its own receipt` : "";
+    $("proof-trail").innerHTML = row ? history(row, d.case, "/proof").replace("<details", "<details open") : "";
+    if ($("proof-go")) $("proof-go").onclick = async () => { const who = needName(); if (!who) return;
+      try { await post("/proof/flip", {to: next, who}); } catch (err) { $("banner").textContent = err.message; } lastProofKey = ""; load(); };
+    if ($("proof-resolve")) $("proof-resolve").onclick = async () => { const who = needName(); if (!who) return;
+      try { await post(`/proof/targets/${encodeURIComponent(row.id)}/actions`, {who, action:"resolved", outcome:"page_updated"}); } catch (err) { $("banner").textContent = err.message; } lastProofKey = ""; load(); };
+  }
+
+  // Dialogs: one <dialog>, three forms. Nothing is sent to the owner by this app.
+  let dlgTarget = null;
+  function openDialog(kind, tid) {
+    const who = needName(); if (!who) return;
+    const v = mode === "live" ? data.view : data, t = v.targets.find(x => x.id === tid); dlgTarget = t;
+    for (const f of ["f-contact","f-resolve","f-note","f-sent","f-identity","f-receipt"]) $(f).classList.toggle("hidden", f !== "f-" + kind);
+    $("dlg-title").textContent = {contact:`Contact ${t.publisher}`, resolve:`Resolve: ${t.publisher}`, note:`Note on ${t.publisher}`, sent:`Confirm the message to ${t.publisher} was sent`, identity:`Is this the recalled product? ${t.publisher}`}[kind];
+    if (kind === "sent") { $("s-to").value = t.draft?.recipient || ""; $("s-due").value = data.owner_reply_hours || 24; $("s-confirm").checked = false; }
+    if (kind === "identity") {
+      const c = v.case, photo = pagePhoto(t.product);
+      $("i-compare").innerHTML = `<figure>${(c.images||[])[0] ? `<img src="${esc(photoSrc(c.images[0]))}" alt="Official photo">` : '<p class="msg">The notice has no photo.</p>'}<figcaption>Official notice</figcaption></figure><figure>${photo ? `<img src="${esc(photo)}" alt="Photo on the page">` : '<p class="msg">The page gave no product photo.</p>'}<figcaption>${esc(t.publisher)}: ${esc(t.product?.name || "")}</figcaption></figure>`;
+      $("i-detail").textContent = t.identity_detail; $("i-note").value = "";
+    }
+    $("dlg-err").textContent = "";
+    if (kind === "contact") {
+      $("c-body").value = "Drafting…";
+      fetch(`${base()}/targets/${encodeURIComponent(tid)}/owner-message`).then(r => r.json()).then(m => { $("c-to").value = m.to || ""; $("c-subject").value = m.subject; $("c-body").value = m.body; });
+    }
+    if (kind === "resolve") {
+      $("r-outcomes").innerHTML = Object.entries(data.outcomes).map(([k, label], i) => `<label class="opt"><input type="radio" name="outcome" value="${k}" ${i===0?"checked":""}> ${esc(label)}</label>`).join("");
+      $("r-state").innerHTML = Object.entries(data.state_labels).map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join("");
+      $("r-note").value = ""; syncResolve();
+    }
+    if (kind === "note") $("n-note").value = "";
+    $("dlg").showModal();
+  }
+  const base = () => mode === "live" ? "/afterimage/live" : "/afterimage/demo";
+  const NOTE_REQUIRED = ["lot_outside_recall", "classification_wrong", "no_action_needed"];
+  function syncResolve() {
+    const o = (document.querySelector('input[name=outcome]:checked') || {}).value;
+    $("r-state-wrap").classList.toggle("hidden", o !== "classification_wrong");
+    $("r-note-label").textContent = NOTE_REQUIRED.includes(o) ? "Note (required: what you checked, or who confirmed it)" : "Note (optional)";
+  }
+  $("r-outcomes").addEventListener("change", syncResolve);
+  async function record(body) {
+    try { busy = true; await post(`${base()}/targets/${encodeURIComponent(dlgTarget.id)}/actions`, {who: $("who").value.trim(), ...body}); $("dlg").close(); }
+    catch (err) { $("dlg-err").textContent = err.message; }
+    finally { busy = false; load(); }
+  }
+  const contactBody = how => ({action:"draft_prepared", recipient:$("c-to").value.trim(), note:`Draft ${how}: ${$("c-subject").value}`});
+  $("c-mail").onclick = async () => { if (!$("c-to").value.trim()) { $("dlg-err").textContent = "Enter who you contact."; return; }
+    const to = $("c-to").value.trim(), href = `mailto:${/@/.test(to) ? encodeURIComponent(to) : ""}?subject=${encodeURIComponent($("c-subject").value)}&body=${encodeURIComponent($("c-body").value)}`;
+    window.open(href, "_blank"); await record(contactBody("opened in the mail app")); };
+  $("c-copy").onclick = async () => { if (!$("c-to").value.trim()) { $("dlg-err").textContent = "Enter who you contact."; return; }
+    try { await navigator.clipboard.writeText(`${$("c-subject").value}\n\n${$("c-body").value}`); } catch (_) {}
+    await record(contactBody("copied to the clipboard")); };
+  $("r-save").onclick = () => record({action:"resolved", outcome:(document.querySelector('input[name=outcome]:checked')||{}).value, note:$("r-note").value, corrected_state:$("r-state").value});
+  $("s-save").onclick = () => { if (!$("s-confirm").checked) { $("dlg-err").textContent = "Tick the box only once the message has been sent."; return; }
+    record({action:"owner_contacted", recipient:$("s-to").value.trim(), due_hours:Number($("s-due").value)||24, note:"Sender confirmed the message was sent."}); };
+  $("i-same").onclick = () => record({action:"identity_confirmed", note:$("i-note").value});
+  $("i-diff").onclick = () => record({action:"resolved", outcome:"not_this_product", note:$("i-note").value || "Different product, compared with the official photo."});
+  $("n-save").onclick = () => record({action:"note", note:$("n-note").value});
+  $("dlg-cancel").onclick = () => $("dlg").close();
+
+  function chart(v) {
+    if (!v.targets.length) { $("chart").innerHTML = '<p class="empty">The timeline starts when the first page is read.</p>'; $("chart-sum").textContent = ""; return; }
+    // When watching started long after the notice, the unwatched gap is drawn compressed behind a
+    // break, so the observed part stays readable. The labels give the real times on both sides.
+    const c = v.case, start = c.notice_at, now = v.now, due = v.sla_due;
+    const firstObs = Math.min(...v.targets.map(t => t.first_observed_at ?? now), now);
+    const early = due + (due - start) * 0.25, gap = firstObs - early;
+    const broken = gap > (now - start) * 0.5, watchFrom = broken ? firstObs - Math.max(1800, (now - firstObs) * 0.1) : null;
+    const pct = t => !broken ? (t - start) / (Math.max(now, early) - start) * 100
+      : t <= early ? (t - start) / (early - start) * 22 : t < watchFrom ? 22 + 3 * (t - early) / (watchFrom - early) : 25 + (t - watchFrom) / (now - watchFrom) * 75;
+    $("chart-sum").textContent = `from the official notice to now · ${dur(now - start)}${broken ? ` · axis broken: ${dur(watchFrom - early)} before watching began are compressed` : ""}`;
+    $("chart").innerHTML = v.targets.map(t => {
+      const h = t.history || []; let segs = "";
+      h.forEach((o, i) => { const a = pct(o.at), b = pct(i+1 < h.length ? h[i+1].at : now); segs += `<b class="seg ${esc(o.state)}" style="left:${a}%;width:${Math.max(.6, b-a)}%"></b>`; });
+      return `<div class="crow"><span class="cname" title="${esc(t.publisher)}">${esc(t.publisher)}</span><span class="track" role="img" aria-label="${esc(t.publisher)}: ${esc(t.state_label||"")}">${segs}<i class="slaline" style="left:${pct(due)}%"></i>${broken ? `<i class="brk" style="left:22%"></i>` : ""}</span></div>`;
+    }).join("") + `<div class="axis"><span></span><div style="position:relative;height:14px"><span style="position:absolute;left:0">Notice ${fmt(start, start)}</span><span style="position:absolute;left:${pct(due)}%;transform:translateX(${broken ? "-10%" : "-50%"})">${c.sla_hours} h SLA</span>${broken ? `<span style="position:absolute;left:25%">watch began ${fmt(watchFrom, start)}</span>` : ""}<span style="position:absolute;right:0">Now ${fmt(now, start)}</span></div></div>`;
+  }
+
+  async function load() {
+    if (busy) return;
+    const url = mode === "live" ? "/afterimage/live" + (caseId ? "?case=" + encodeURIComponent(caseId) : "") : mode === "proof" ? "/proof" : "/afterimage/demo";
+    try { const r = await fetch(url); if (!r.ok) throw Error(); const d = await r.json(); data = d; render(); }
+    catch (_) { $("banner").textContent = "The evidence stream is unavailable. Retrying."; }
+  }
+  function setMode(m) { mode = m; store.set("afterimage-mode", m); data = null; lastRowsKey = lastLeadKey = lastProofKey = lastCasesKey = ""; load(); }
+  $("cases").addEventListener("click", e => { const b = e.target.closest("button[data-case]"); if (b) { caseId = b.dataset.case; load(); } });
+  $("open-form").addEventListener("submit", async e => {
+    e.preventDefault(); const msg = $("open-msg"); msg.className = "msg"; msg.textContent = "Context.dev is reading the official notice and searching approved domains…"; busy = true;
+    try { const d = await post("/afterimage/live/cases", {notice_url: $("open-url").value.trim(), who: $("who").value.trim()}); caseId = d.case.id; $("open-url").value = ""; msg.textContent = "Case opened."; }
+    catch (err) { msg.className = "msg err"; msg.textContent = err.message; }
+    finally { busy = false; load(); }
+  });
+  // "Open on your phone": Wi-Fi join code and address, drawn as QR codes when the QR library loads.
+  function qr(el, text) {
+    el.innerHTML = "";
+    try { const q = qrcode(0, "M"); q.addData(text); q.make(); el.innerHTML = q.createSvgTag({cellSize: 4, margin: 0, scalable: true}); }
+    catch (_) { el.classList.add("hidden"); }
+  }
+  const wifiEsc = v => String(v).replace(/([\\;,:"])/g, "\\$1");
+  $("join-btn").onclick = async () => {
+    const j = await (await fetch("/share")).json();
+    $("join-wifi").classList.toggle("hidden", !j.ssid);
+    $("join-step2").textContent = j.ssid ? "2 · Open the address" : "Open the address";
+    if (j.ssid) { $("j-ssid").textContent = j.ssid; $("j-pass").textContent = j.password || "(none)";
+      qr($("qr-wifi"), `WIFI:T:${j.password ? j.security : "nopass"};S:${wifiEsc(j.ssid)};P:${wifiEsc(j.password)};;`); }
+    $("j-url").textContent = j.url; qr($("qr-url"), j.url);
+    $("join").showModal();
+  };
+  $("join-close").onclick = () => $("join").close();
+  for (const m of MODES) $("tab-" + m).onclick = () => setMode(m);
+
+  function needName() { const who = $("who").value.trim(); if (!who) { $("who").focus(); $("banner").textContent = "Type your name in the header first. Each action is stored with it. The name is typed, not verified."; } return who; }
+
+  // The evidence receipt: the answer first (five blocks a judge reads in ten seconds), the full record below.
+  async function showReceipt(oid, rbase) {
+    const r = await (await fetch(`${rbase}/observations/${oid}/receipt`)).json(), o = r.observation, n = r.notice, pg = r.page, m = r.monitor, cur = r.current || {};
+    for (const f of ["f-contact","f-resolve","f-note","f-sent","f-identity","f-receipt"]) $(f).classList.toggle("hidden", f !== "f-receipt");
+    $("dlg-title").textContent = `Evidence receipt · ${pg.publisher} · observation ${o.id}`; $("dlg-err").textContent = "";
+    const row = (k, v) => `<tr><th>${k}</th><td>${v}</td></tr>`, a = (u, t) => u ? `<a href="${esc(u)}" target="_blank" rel="noreferrer">${esc(t || u)}</a>` : "—";
+    const early = !r.has_receipt ? `<p class="flash">This read was made before receipts were added, so the call, identity and page copy were not recorded. The row's “Evidence receipt” button opens the latest read, which has every field.</p>` : "";
+    const withheld = "Withheld from the published evidence copy: it is the retailer's content. The original is on the demo machine; the SHA-256 identifies it.";
+    const labels = (data.state_labels || {}), stateLabel = labels[o.state] || cur.state_label || o.state;
+    const shot = r.artifacts.screenshot ? `<a href="${r.artifacts.screenshot}" target="_blank"><img src="${r.artifacts.screenshot}" alt="Screenshot of the page at this read"></a><p class="mono">Screenshot taken by Context.dev in the same call.</p>`
+      : `<p class="mono">${r.artifacts.withheld && o.has_screenshot ? esc(withheld) : "No screenshot for this read."}</p>`;
+    const hero = `<div class="rhero">
+      <div><h3>Official notice and product</h3><p><b>${esc(n.title_en || n.title_fi)}</b></p>
+        <p class="mono">${esc(n.publisher)} · ${esc(n.notice_date)}<br>${esc(n.products.join(" · "))}${n.gtins.length ? `<br>GTIN <b>${esc(n.gtins.join(", "))}</b>` : ""}</p>
+        <p class="mono" style="margin-top:6px"><b class="${["gtin","exact_name","confirmed"].includes(o.identity) ? "ok" : "bad"}">${esc(MATCH[o.identity] || r.identity_label)}</b>${o.identity_detail ? `: ${esc(o.identity_detail)}` : ""}</p></div>
+      <div class="shotbox"><h3>What the page looked like</h3>${shot}</div>
+      <div><h3><img class="cdlogo" src="/brand/context-dev.svg" alt="Context.dev"> call</h3><p class="mono">${o.request_id ? `request <b>${esc(o.request_id)}</b><br>${esc(fmtSec(o.at))}<br>${o.cache === "miss" ? "fresh read (cache miss)" : "cache " + esc(o.cache || "?")} · ${o.extract_ms ?? "?"} ms · ${esc(TRIG[o.trigger] || o.trigger)}${o.change_id ? `<br>monitor change ${esc(o.change_id)}` : ""}` : "not recorded (observation from before receipts)"}</p></div>
+      <div><h3>Verbatim from the page</h3>${o.excerpt ? `<p class="quote" lang="fi">“${esc(o.excerpt)}”</p><p class="mono ${o.excerpt_verified ? "ok" : "bad"}">${o.excerpt_verified ? "✓ found word for word in the stored page text" : "✗ not found word for word in the stored page text"}${o.content_sha256 ? `<br>page text SHA-256 ${esc(o.content_sha256.slice(0, 16))}…` : ""}</p>` : `<p>${esc(o.evidence)}</p>`}</div>
+      <div class="now ${cur.needs_action ? "need" : ""}" style="grid-column:1/-1"><h3>State, and why it ${cur.needs_action ? "needs review" : "is in the queue"}</h3>
+        <p><b>${esc(stateLabel)}</b>${cur.latest ? "" : " · a newer read of this page exists"} · ${esc(cur.reopened ? "re-opened" : REVIEW[cur.review] || cur.review || "")}</p><p class="mono">${esc(o.evidence)}<br>${esc(cur.next_step)}</p></div>
+    </div>`;
+    $("receipt").innerHTML = (r.test_page ? `<p class="testflag">Test page owned by the team (a public GitHub gist). Not retailer evidence. Stored apart from the real cases.</p>` : "") + early + hero + `<details class="full"><summary>Full receipt: provenance, monitor runs, hashes, photos</summary><table class="rcpt">
+      ${row("Official notice", `${r.test_page ? esc(n.title_fi) : a(n.notice_url, n.title_fi)}<br>${esc(n.notice_date)} · ${esc(n.notice_at_basis)}`)}
+      ${row("Recalled products", esc(n.products.join(" · ")) + (n.gtins.length ? `<br>GTIN ${esc(n.gtins.join(", "))}` : "") + (n.lot ? `<br>${esc(n.lot)}` : ""))}
+      ${row("Public page", `${a(pg.url)}<br>${esc(pg.publisher)} · ${esc(pg.page_type)}`)}
+      ${row("How the page was chosen", `${esc(pg.origin_detail || "not recorded (added before provenance tracking)")}<br>added by ${esc(pg.added_by)}, ${fmt(pg.added_at)}`)}
+      ${row("Read at", `${esc(fmtSec(o.at))} · ${esc(TRIG[o.trigger] || o.trigger)}${o.change_id ? ` · monitor change ${esc(o.change_id)}` : ""}`)}
+      ${row("Context.dev call", o.request_id ? `request ${esc(o.request_id)} · cache ${esc(o.cache || "?")} · ${o.credits ?? "?"} credits · ${o.extract_ms ?? "?"} ms` : "not recorded (observation from before receipts)")}
+      ${row("Context.dev monitor", pg.monitor_id ? `${esc(pg.monitor_id)}${m ? ` · ${esc(m.status)} · last run ${m.last_run_at ? fmt(Date.parse(m.last_run_at)/1000) : "—"} · next run ${m.next_run_at ? fmt(Date.parse(m.next_run_at)/1000) : "—"} · last change ${m.last_change_at ? fmt(Date.parse(m.last_change_at)/1000) : "none yet"}` : ""}` : "none")}
+      ${row("Monitor runs", m && m.runs && m.runs.length ? m.runs.map(x => `${x.started_at ? fmt(Date.parse(x.started_at)/1000) : "not started"} · ${esc(x.run_type || "")} ${esc(x.status)} · ${x.change_detected ? "<b>change detected</b>" : "no change"}`).join("<br>") : "—")}
+      ${row("Classified state", `<b>${esc(stateLabel)}</b>${o.raw_state && o.raw_state !== o.state ? ` (model said ${esc(o.raw_state)}; overridden because no product match)` : ""}<br><q>${esc(o.evidence)}</q>`)}
+      ${row("Product identity", `${esc(r.identity_label)}${o.identity_detail ? `<br>${esc(o.identity_detail)}` : ""}`)}
+      ${row("Product block", o.product && o.product.name ? `${esc(o.product.name)}${o.product.sku ? ` · code ${esc(o.product.sku)}` : ""}${o.product.price != null ? ` · ${esc(o.product.price)} €` : ""}` : "—")}
+      ${row("Stored page text", r.artifacts.page_text ? `${a(r.artifacts.page_text, "open")} · SHA-256 <code>${esc(o.content_sha256)}</code>` : r.artifacts.withheld ? `${withheld}<br>SHA-256 <code>${esc(o.content_sha256)}</code>` : "—")}
+      ${row("Product photos", [...(n.images||[]).map(i => `Official: ${a(i.url, "original")}${i.local ? ` · stored copy, ${Math.round(i.bytes/1024)} kB, SHA-256 <code>${esc(i.sha256)}</code>` : ` · not stored${i.refused ? ` (${esc(i.refused)})` : ""}`}`),
+        o.product && o.product.image ? `Page: ${a(o.product.image, "original")}${o.product.image_local ? ` · stored copy, ${Math.round(o.product.image_bytes/1024)} kB, SHA-256 <code>${esc(o.product.image_sha256)}</code>` : o.product.image_withheld ? ` · stored copy withheld from the published evidence (retailer content), SHA-256 <code>${esc(o.product.image_sha256)}</code>` : ` · not stored${o.product.image_refused ? ` (${esc(o.product.image_refused)})` : ""}`}` : "Page: no product photo found"].join("<br>"))}
+    </table>
+    <div class="compare">${(n.images||[])[0] ? `<figure><img src="${esc(photoSrc(n.images[0]))}" alt="Official photo"><figcaption>Official notice photo</figcaption></figure>` : ""}${o.product && o.product.image ? `<figure><img src="${esc(pagePhoto(o.product))}" alt="Page photo"><figcaption>Photo on the page at this read</figcaption></figure>` : ""}</div></details>`;
+    $("dlg").showModal();
+  }
+  // One click handler for the lead card, the review queue and the proof view.
+  document.addEventListener("click", async e => {
+    const b = e.target.closest("button[data-receipt],button[data-dlg],button[data-reopen],button[data-check]"); if (!b) return;
+    if (b.dataset.receipt) return showReceipt(b.dataset.receipt, b.dataset.base || "/afterimage/live");
+    if (b.dataset.dlg) return openDialog(b.dataset.dlg, b.dataset.id);
+    if (b.dataset.reopen) { const who = needName(); if (!who) return;
+      try { await post(`${base()}/targets/${encodeURIComponent(b.dataset.reopen)}/actions`, {who, action:"reopened", note:"Re-opened by a reviewer."}); } catch (err) { $("banner").textContent = err.message; }
+      return load(); }
+    if (b.dataset.check) {
+      const tid = b.dataset.check; b.disabled = true; b.textContent = "Reading…"; busy = true;
+      try { const d = await post(`/afterimage/live/targets/${encodeURIComponent(tid)}/rescrape`);
+        const label = k => data.state_labels[k] || k;
+        flash[tid] = d.changed ? `Changed: ${esc(label(d.previous_state))} → <b>${esc(label(d.observation.state))}</b>. Stored as a new observation with its own receipt.`
+          : `No change since ${fmt(d.previous_at)}: still <b>${esc(label(d.observation.state))}</b>. Stored as a new observation with its own receipt.`; }
+      catch (err) { flash[tid] = esc(err.message); }
+      finally { busy = false; load(); }
+    }
+  });
+  async function addPage(url, publisher) {
+    const msg = $("add-msg"), btn = $("add-btn"); msg.className = "msg"; msg.textContent = "Context.dev is reading the page and creating its monitor…"; btn.disabled = true; busy = true;
+    try { const d = await post(`/afterimage/live/cases/${encodeURIComponent(data.view.case.id)}/targets`, {url, publisher, who: $("who").value.trim()});
+      msg.textContent = `Watching ${d.target.publisher}.`; $("add-url").value = ""; $("add-pub").value = ""; }
+    catch (err) { msg.className = "msg err"; msg.textContent = err.message; }
+    finally { btn.disabled = false; busy = false; load(); }
+  }
+  $("add-form").addEventListener("submit", e => { e.preventDefault(); addPage($("add-url").value.trim(), $("add-pub").value.trim()); });
+  $("sugg").addEventListener("click", e => { const b = e.target.closest("button[data-url]"); if (b) addPage(b.dataset.url, ""); });
+  // Refresh: the demo clock every second, a running proof every second, everything else every 5 s.
+  let tick = 0;
+  load(); setInterval(() => { tick++; if (mode === "demo" || (mode === "proof" && data?.running) || tick % 5 === 0) load(); }, 1000);
 })();
 </script>
 </body>

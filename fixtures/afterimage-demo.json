@@ -1,0 +1,51 @@
+{
+  "about": "Demo replay. Simulated public pages and a simulated clock. Nothing here is an observation of a real retailer. It never appears in the live case.",
+  "official_notice": {
+    "notice_url": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/tiedote-kananmunalle-maidolle-ja-sinapinsiemenille-allergisille-coleslaw-salaattirasiassa-voi-olla-toisenlaista-coleslaw-salaattia/",
+    "publisher": "Finnish Food Authority",
+    "title_fi": "Tiedote kananmunalle, maidolle ja sinapinsiemenille allergisille: Coleslaw-salaattirasiassa voi olla toisenlaista coleslaw-salaattia",
+    "title_en": "Notice for people allergic to egg, milk and mustard: an Atria Coleslaw tub may contain a different coleslaw salad.",
+    "translation_provenance": "Hand translation by the team for this demo. The Finnish wording is authoritative.",
+    "products": ["Atria Coleslaw 300 g"],
+    "gtins": ["6407860065295"],
+    "lot": "",
+    "notice_date": "2026-02-10",
+    "notice_at_basis": "Simulated: T+0:00 is the moment the official notice appeared",
+    "sla_hours": 4
+  },
+  "minutes_per_second": 5,
+  "duration_minutes": 330,
+  "hold_seconds": 12,
+  "targets": [
+    {"id": "demo-storefront-a", "publisher": "Storefront A (simulated)", "page_type": "Product listing", "url": "",
+     "monitor_id": "simulated",
+     "observations": [
+       {"min": 6, "state": "active_listing", "trigger": "added", "evidence": "Price and an add-to-cart button are visible."},
+       {"min": 66, "state": "active_listing", "trigger": "scheduled", "evidence": "Price and an add-to-cart button are still visible."},
+       {"min": 129, "state": "active_listing", "trigger": "scheduled", "evidence": "Price and an add-to-cart button are still visible."},
+       {"min": 209, "state": "recall_message", "trigger": "monitor_change", "window_min": 199, "evidence": "The add-to-cart button is gone and a recall notice for the tub is shown."}
+     ]},
+    {"id": "demo-storefront-b", "publisher": "Storefront B (simulated)", "page_type": "Product listing", "url": "",
+     "monitor_id": "simulated",
+     "observations": [
+       {"min": 7, "state": "active_listing", "trigger": "added", "evidence": "The page shows the product as available for delivery."},
+       {"min": 67, "state": "active_listing", "trigger": "scheduled", "evidence": "The page shows the product as available for delivery."},
+       {"min": 101, "state": "not_purchasable", "trigger": "monitor_change", "window_min": 91, "evidence": "The product is shown as out of the assortment. No recall text is visible."}
+     ]},
+    {"id": "demo-brand-c", "publisher": "Brand page C (simulated)", "page_type": "Manufacturer page", "url": "",
+     "monitor_id": "simulated",
+     "observations": [
+       {"min": 8, "state": "unverified", "trigger": "added", "evidence": "The product name is visible, but the page states no availability."},
+       {"min": 52, "state": "recall_message", "trigger": "monitor_change", "window_min": 42, "evidence": "A recall statement appears next to the product reference."}
+     ]},
+    {"id": "demo-marketplace-d", "publisher": "Marketplace D (simulated)", "page_type": "Marketplace listing", "url": "",
+     "monitor_id": "simulated",
+     "observations": [
+       {"min": 9, "state": "active_listing", "trigger": "added", "evidence": "A third-party seller lists the tub with a price."},
+       {"min": 69, "state": "active_listing", "trigger": "scheduled", "evidence": "A third-party seller lists the tub with a price."},
+       {"min": 189, "state": "active_listing", "trigger": "scheduled", "evidence": "A third-party seller lists the tub with a price."},
+       {"min": 249, "state": "active_listing", "trigger": "scheduled", "evidence": "A third-party seller still lists the tub with a price."},
+       {"min": 309, "state": "active_listing", "trigger": "scheduled", "evidence": "A third-party seller still lists the tub with a price."}
+     ]}
+  ]
+}

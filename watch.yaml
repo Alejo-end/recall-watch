@@ -1,7 +1,9 @@
-# What Recall Watch watches, and what is on the shelf. Code reads this file. After a change to
-# `monitors`, run
+# What Recall Watch watches. Code reads this file.
+# Recall Watch itself is configured under `afterimage:` at the end. The keys `kitchen`, `active_days`,
+# `monitors`, `news` and `shelf` belong to the earlier kitchen shelf prototype. Its regression tests
+# still read them, and its poller runs only with KITCHEN=1. After a change to `monitors`, run
 #   uv run python -m recall.setup_monitors
-# No Context.dev call ran with these addresses and queries yet.
+# The list monitor below is also the one that the Recall Watch list check uses.
 
 kitchen: School kitchen, Helsinki
 
@@ -17,6 +19,9 @@ list:
   # On start, read at most this many notices of the current year that the database does not hold yet.
   # Each one costs 5 credits (docs.context.dev/account/credits: 1 for the page, 4 for the fields).
   backfill_max: 40
+  # When the list monitor changes, re-read this many latest notices. A recall page can later add
+  # a lot number or correct its product list; Recall Watch stores the revised evidence separately.
+  revision_probe_max: 10
 
 # Context.dev monitors. Each runs every 10 minutes, the shortest schedule (docs.context.dev/monitors/schedules).
 # Cost: 1 credit per page run, 2 per search run.
@@ -36,24 +41,71 @@ monitors:
       query: "elintarvike takaisinveto tiedote"
       instructions: "Report a new recall of a food product in Finland, announced by a manufacturer, an importer or a shop chain. Ignore recalls of cars, toys and other goods, and ignore yearly statistics."
 
-# Context.dev news search, run by our backend every news_minutes. The screen lists the articles. They give no level.
+# Context.dev news search, run by our backend every news_minutes for operator context. It gives no
+# action level and is intentionally not used as food-safety evidence.
 news:
   query: "food product recall in Finland, elintarvikkeen takaisinveto"
   news_minutes: 30
 
-# The products on this kitchen's shelf. We wrote this list for the demo. Seven of the twelve
-# products are here because a notice of 2026 names them, so that the replay shows every level.
-# The other five match no notice.
+# The products on this kitchen's shelf. This is a demo import, not manual daily stock entry.
+# In a production pilot, the food-safety lead would load EANs and lots from purchasing or inventory.
+# Seven of these twelve products match notices in the replay so the demo shows every level.
 shelf:
-  - {id: coleslaw, name: "Atria Coleslaw 300 g", brand: Atria, ean: "6407860065295"}
+  - id: coleslaw
+    name: "Atria Coleslaw 300 g"
+    brand: Atria
+    ean: "6407860065295"
+    stock_location: "Cold store · rack 2"
+    candidate_stock: "2 candidate tubs"
+    next_service: "Next lunch · salad counter"
+    open_order: "6 tubs due at 07:00"
   - {id: coffee, name: "Kulta Katriina Perinteinen suodatinkahvi 500 g", brand: Kulta Katriina}
   - {id: oat-drink, name: "Elovena kaurajuoma kahviin 1 l", brand: Elovena}
   - {id: curry, name: "Via Red Thai Curry 320 g", brand: Via, ean: "6409100071899"}
   - {id: sprouts, name: "Lounasitu sinimailasen idut 1 kg", brand: Lounasitu}
-  - {id: eggs, name: "Kotimaista Vapaa M10 580 g", brand: Kotimaista, ean: "6414893094918"}
+  - id: eggs
+    name: "Kotimaista Vapaa M10 580 g"
+    brand: Kotimaista
+    ean: "6414893094918"
+    stock_location: "Dry store · bay 4"
+    candidate_stock: "1 unopened case"
+    next_service: "Tomorrow breakfast prep"
   - {id: pudding, name: "Arla Protein Vanilja vanukas 200g laktoositon", brand: Arla}
   - {id: milk, name: "Valio Eila rasvaton maitojuoma 1 l", brand: Valio}
   - {id: bread, name: "Fazer Puikula täysjyväruis 500 g", brand: Fazer}
   - {id: pasta, name: "Myllyn Paras makaroni 400 g", brand: Myllyn Paras}
   - {id: sausage, name: "HK Sininen Lenkki 580 g", brand: HK}
   - {id: butter, name: "Valio voi normaalisuolainen 500 g", brand: Valio}
+
+# Recall Watch: how fast approved public pages catch up with an official notice.
+# (The section keeps its first name, `afterimage`, which the code reads.)
+# Every scrape and monitor run spends Context.dev credits, so the pilot is bounded on purpose.
+afterimage:
+  # Only these domains can be watched. In a pilot, the retailer or brand owner approves this list.
+  allowed_domains: [arla.fi, k-ruoka.fi, s-kaupat.fi, foodie.fi, kesko.fi, valio.fi, atria.fi]
+  # The service level agreement (SLA) the compliance lead measures: purchase path closed within this time.
+  sla_hours: 4
+  max_cases: 20
+  max_targets_per_case: 10
+  # Each new page gets a Context.dev page monitor (1 credit per run, every 10 minutes).
+  create_monitors: true
+  monitor_interval_minutes: 10
+  # Fallback: re-read a page that no monitor reported for this long. 5 credits per read.
+  recheck_minutes: 60
+  # A person can re-read one page at most this often.
+  min_rescrape_seconds: 300
+  scrape_budget_per_hour: 60
+  # The case the screen opens on. The chili case is the strongest: the recalling company's own shop
+  # still lists the product under the official GTIN.
+  featured_notice_url: https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/pakastetussa-chilissa-kadmiumylitys/
+  # The live case opened on first start when a Context.dev key is set. The URLs were found with
+  # Context.dev search on 14 November 2026, limited to the domains above.
+  seed_case:
+    notice_url: https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/proteiinivanukkaissa-mahdollisesti-lasinsiruja/
+    targets:
+      - {url: "https://www.arla.fi/tuotteet/arla-protein-vanilja-vanukas-laktoositon-200g-688729/", publisher: Arla, page_type: Manufacturer product page,
+         found: "Context.dev search for “Arla Protein vanilja vanukas 200g laktoositon” limited to the approved domains, 14 Nov 2026, about 19:35. Rank 1 of 10. Approved by the team for the pilot."}
+      - {url: "https://www.s-kaupat.fi/tuote/arla-protein-vanilja-vanukas-200g-laktoositon/5711953200496", publisher: S-kaupat, page_type: Retailer product page,
+         found: "Context.dev search for “Arla Protein vanilja vanukas 200g laktoositon” limited to the approved domains, 14 Nov 2026, about 19:35. Rank 2 of 10. Approved by the team for the pilot."}
+      - {url: "https://www.k-ruoka.fi/kauppa/tuote/arla-protein-vanukas-200g-vanilja-lton-5711953200496", publisher: K-Ruoka, page_type: Retailer product page,
+         found: "Context.dev search for “Arla Protein vanilja vanukas 200g laktoositon” limited to the approved domains, 14 Nov 2026, about 19:35. Rank 3 of 10. Approved by the team for the pilot."}
