@@ -14,3 +14,6 @@ build/
 
 # Captured evidence (a database and pictures taken from web pages) is runtime data.
 evidence/
+
+# Runtime data: the evidence database and the pictures and text captured from web pages.
+data/
