@@ -4,7 +4,9 @@
 
 ![The first screen: one public page still needs review after an official recall, with the exact GTIN match and what the page shows now](docs/decks/shots/first-screen.png)
 
-## For the judges, in one minute
+## VIDEO
+
+https://youtu.be/L8SXE-4ROnA
 
 | | |
 |---|---|
