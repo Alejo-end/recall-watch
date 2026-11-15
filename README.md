@@ -18,6 +18,10 @@
 
 ## Try it
 
+**Online:** https://alejo-end--recall-watch.us-east.modal.run (hosted on Modal, the stored evidence read only, so it spends no Context.dev credits).
+
+On your machine:
+
 ```sh
 uv run uvicorn recall.app:app --port 8030
 ```
@@ -45,6 +49,7 @@ The live proof needs a one-time setup on the demo machine: `uv run python -m rec
 
 | Document | For |
 |---|---|
+| `deploy/modal_app.py` | How the online link is served on Modal |
 | [PITCH.md](PITCH.md) | The spoken pitch, the two-minute demo script and the answers to likely questions |
 | [HANDBOOK.md](HANDBOOK.md) | The loop, the review process and the guard rails |
 | [WINNING_LOOP.md](WINNING_LOOP.md) | The Context.dev loop and the current evidence |
