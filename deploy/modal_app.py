@@ -12,8 +12,7 @@ that key in it:
 
 The evidence lives on the Modal volume "recall-watch-data", mounted where the app keeps data/. On the first
 start the volume is empty, and the server copies in the evidence from this machine (data/, which git ignores),
-so the link opens on the stored case and adds new reads to it. The container sleeps when nobody uses the link,
-so the page monitors run, and spend Context.dev credits, only while someone has it open.
+so the link opens on the stored case and adds new reads to it.
 """
 from pathlib import Path
 
@@ -24,6 +23,7 @@ ROOT = Path(__file__).resolve().parent.parent
 image = (
     modal.Image.debian_slim(python_version="3.12")
     .pip_install_from_pyproject(str(ROOT / "pyproject.toml"))
+    .env({"SHARE_URL": "https://alejo-end--recall-watch.us-east.modal.run/"})   # the phone card opens the public link
     .add_local_dir(ROOT / "data", remote_path="/root/seed", ignore=["**/*.bak"])
     .add_local_dir(ROOT, remote_path="/root/app",
                    ignore=[".venv", ".git", "**/__pycache__", ".pytest_cache", "docs", "tests", ".env", "data"])
@@ -33,7 +33,9 @@ data = modal.Volume.from_name("recall-watch-data", create_if_missing=True)
 app = modal.App("recall-watch", image=image)
 
 
-@app.function(min_containers=0, max_containers=1, timeout=3600, volumes={"/root/app/data": data},
+# One container stays warm, so a judge never waits for a cold start, and the live loop keeps reading. The loop asks
+# Context.dev for monitor changes every 2 minutes and re-reads a page only when it changed or is due.
+@app.function(min_containers=1, max_containers=1, timeout=3600, volumes={"/root/app/data": data},
               secrets=[modal.Secret.from_name("recall-watch-context")])
 @modal.concurrent(max_inputs=50)
 @modal.asgi_app(label="recall-watch")
