@@ -18,7 +18,7 @@
 
 ## Try it
 
-**Online:** https://alejo-end--recall-watch.us-east.modal.run (hosted on Modal, the stored evidence read only, so it spends no Context.dev credits).
+**Online:** https://alejo-end--recall-watch.us-east.modal.run (hosted on Modal and live: it reads the real pages with Context.dev while someone has the link open).
 
 On your machine:
 
